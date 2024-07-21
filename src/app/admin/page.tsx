@@ -1,38 +1,92 @@
-import { ActivityTimeline } from "@/components/dashboard/activity-timeline";
-import { AdminSnapshot } from "@/components/dashboard/admin-snapshot";
-import { MembersPanel } from "@/components/dashboard/members-panel";
-import { NotificationsPanel } from "@/components/dashboard/notifications-panel";
-import { AppSidebar } from "@/components/shell/app-sidebar";
-import { Topbar } from "@/components/shell/topbar";
+import Link from "next/link";
+
+import { activity, adminMetrics, members, notifications } from "@/lib/sample-data";
 
 export default function AdminPage() {
   return (
-    <div className="min-h-screen bg-[#f6f7fb] text-slate-950">
-      <div className="mx-auto flex max-w-[1680px]">
-        <AppSidebar />
-        <div className="min-w-0 flex-1">
-          <Topbar />
-          <main className="space-y-5 p-4 sm:p-6">
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm font-medium text-[#0f766e]">Admin dashboard</p>
-              <h1 className="mt-1 text-2xl font-semibold text-slate-950">Users, Roles, and Audit Controls</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-                This page is structured for protected admin-only actions: user role changes, system metrics, storage oversight, and audit review.
-              </p>
-            </div>
-            <AdminSnapshot />
-            <div className="grid gap-5 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <ActivityTimeline />
-              </div>
-              <div className="space-y-5">
-                <MembersPanel />
-                <NotificationsPanel />
-              </div>
-            </div>
-          </main>
+    <main className="hupr-admin">
+      <nav className="hupr-menu" aria-label="Admin">
+        <span>MENU</span>
+        <div className="hupr-burger" aria-hidden="true">
+          <span />
+          <span />
+          <span />
         </div>
-      </div>
-    </div>
+      </nav>
+
+      <header className="hupr-admin__header">
+        <Link href="/">NEXUSBASE *</Link>
+        <div className="hupr-section-label">
+          <span>ADMIN DASHBOARD</span>
+          <span>SECURE AREA</span>
+        </div>
+        <h1>USERS ROLES AUDIT CONTROLS</h1>
+        <p>
+          Protected administration for user status, role changes, project
+          activity, storage visibility, and notification events.
+        </p>
+      </header>
+
+      <section className="hupr-stats" aria-label="Admin metrics">
+        {adminMetrics.map((metric) => (
+          <article key={metric.label}>
+            <p>{metric.label}</p>
+            <strong>{metric.value}</strong>
+            <span>{metric.detail}</span>
+          </article>
+        ))}
+      </section>
+
+      <section className="hupr-dashboard">
+        <div className="hupr-operations-grid">
+          <article className="hupr-panel hupr-panel--wide">
+            <div className="hupr-panel__header">
+              <h3>AUDIT</h3>
+              <span>{activity.length} EVENTS</span>
+            </div>
+            <div className="hupr-audit">
+              {activity.map((event) => (
+                <div key={`${event.actor}-${event.subject}`}>
+                  <span>{event.time}</span>
+                  <p>
+                    {event.actor} {event.action} {event.subject}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="hupr-panel">
+            <div className="hupr-panel__header">
+              <h3>USERS</h3>
+              <span>{members.length}</span>
+            </div>
+            <div className="hupr-member-grid">
+              {members.map((member) => (
+                <div key={member.name}>
+                  <strong>{member.name}</strong>
+                  <span>{member.role}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="hupr-panel hupr-panel--wide">
+            <div className="hupr-panel__header">
+              <h3>EVENTS</h3>
+              <span>NOTIFICATIONS</span>
+            </div>
+            <div className="hupr-list">
+              {notifications.map((item) => (
+                <div key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p>{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
   );
 }
