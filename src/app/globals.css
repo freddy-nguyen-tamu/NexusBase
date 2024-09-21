@@ -658,6 +658,12 @@ body {
   padding: 64px 48px 96px;
 }
 
+.hupr-crud-stack {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
 .hupr-operations-grid {
   display: grid;
   gap: 0;

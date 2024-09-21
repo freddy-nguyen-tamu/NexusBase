@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ProjectManager } from "@/components/dashboard/project-manager";
+import { TaskBoard } from "@/components/dashboard/task-board";
 import {
   activity,
   files,
@@ -202,6 +204,11 @@ export default function Home() {
           <div className="hupr-section-label">
             <span>OPERATIONS</span>
             <span>LIVE SURFACE</span>
+          </div>
+
+          <div className="hupr-crud-stack">
+            <ProjectManager />
+            <TaskBoard />
           </div>
 
           <div className="hupr-operations-grid">
