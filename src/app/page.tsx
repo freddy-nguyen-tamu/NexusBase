@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FileTable } from "@/components/dashboard/file-table";
 import { ProjectManager } from "@/components/dashboard/project-manager";
 import { TaskBoard } from "@/components/dashboard/task-board";
 import { TaskComments } from "@/components/dashboard/task-comments";
@@ -211,6 +212,7 @@ export default function Home() {
             <ProjectManager />
             <TaskBoard />
             <TaskComments />
+            <FileTable />
           </div>
 
           <div className="hupr-operations-grid">
