@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FileTable } from "@/components/dashboard/file-table";
+import { MembersPanel } from "@/components/dashboard/members-panel";
 import { ProjectManager } from "@/components/dashboard/project-manager";
 import { TaskBoard } from "@/components/dashboard/task-board";
 import { TaskComments } from "@/components/dashboard/task-comments";
@@ -210,6 +211,7 @@ export default function Home() {
 
           <div className="hupr-crud-stack">
             <ProjectManager />
+            <MembersPanel />
             <TaskBoard />
             <TaskComments />
             <FileTable />
