@@ -5,6 +5,7 @@ import { MembersPanel } from "@/components/dashboard/members-panel";
 import { ProjectManager } from "@/components/dashboard/project-manager";
 import { TaskBoard } from "@/components/dashboard/task-board";
 import { TaskComments } from "@/components/dashboard/task-comments";
+import { TeamChat } from "@/components/dashboard/team-chat";
 import {
   activity,
   files,
@@ -215,6 +216,7 @@ export default function Home() {
             <TaskBoard />
             <TaskComments />
             <FileTable />
+            <TeamChat />
           </div>
 
           <div className="hupr-operations-grid">
