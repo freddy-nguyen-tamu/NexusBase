@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { notifyTaskAssignee } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 const createTaskSchema = z.object({
@@ -206,6 +207,14 @@ export async function POST(request: Request) {
     },
   });
 
+  await notifyTaskAssignee({
+    assigneeId: task.assignee?.id,
+    actorId: userId,
+    projectId: task.projectId,
+    taskId: task.id,
+    taskTitle: task.title,
+  });
+
   return NextResponse.json({ task }, { status: 201 });
 }
 
@@ -284,6 +293,16 @@ export async function PATCH(request: Request) {
           : `Updated task "${task.title}"`,
     },
   });
+
+  if (payload.assigneeId !== undefined) {
+    await notifyTaskAssignee({
+      assigneeId: task.assignee?.id,
+      actorId: userId,
+      projectId: task.projectId,
+      taskId: task.id,
+      taskTitle: task.title,
+    });
+  }
 
   return NextResponse.json({ task });
 }

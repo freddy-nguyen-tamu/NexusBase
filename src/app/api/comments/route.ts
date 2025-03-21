@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { notifyProjectMembers } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 const listCommentsSchema = z.object({
@@ -194,6 +195,16 @@ export async function POST(request: Request) {
       action: "COMMENTED",
       summary: `Commented on task "${task.title}"`,
     },
+  });
+
+  await notifyProjectMembers({
+    projectId: task.projectId,
+    actorId: userId,
+    taskId: task.id,
+    type: "COMMENT_CREATED",
+    title: "New task comment",
+    body: `A new comment was added to "${task.title}".`,
+    href: `/dashboard?taskId=${task.id}`,
   });
 
   return NextResponse.json({ comment }, { status: 201 });

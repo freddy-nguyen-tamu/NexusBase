@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 const memberRoleSchema = z.enum(["ADMIN", "EDITOR", "VIEWER"]);
@@ -267,6 +268,16 @@ export async function POST(request: Request) {
       action: "SHARED",
       summary: `Added ${invitedUser.email} as ${parsed.data.role}`,
     },
+  });
+
+  await createNotification({
+    userId: invitedUser.id,
+    actorId: userId,
+    projectId: parsed.data.projectId,
+    type: "MEMBER_ADDED",
+    title: "Project access granted",
+    body: `You were added to a project as ${parsed.data.role}.`,
+    href: `/dashboard?projectId=${parsed.data.projectId}`,
   });
 
   return NextResponse.json({ member }, { status: 201 });

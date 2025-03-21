@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FileTable } from "@/components/dashboard/file-table";
 import { GlobalSearch } from "@/components/dashboard/global-search";
 import { MembersPanel } from "@/components/dashboard/members-panel";
+import { NotificationsPanel } from "@/components/dashboard/notifications-panel";
 import { ProjectManager } from "@/components/dashboard/project-manager";
 import { TaskBoard } from "@/components/dashboard/task-board";
 import { TaskComments } from "@/components/dashboard/task-comments";
@@ -219,6 +220,7 @@ export default function Home() {
             <TaskComments />
             <FileTable />
             <TeamChat />
+            <NotificationsPanel />
           </div>
 
           <div className="hupr-operations-grid">

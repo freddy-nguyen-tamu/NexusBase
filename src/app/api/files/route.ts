@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { createDownloadUrl, getBucketName, s3Client } from "@/lib/aws/s3";
+import { notifyProjectMembers } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 const createFileSchema = z.object({
@@ -254,6 +255,16 @@ export async function POST(request: Request) {
       action: "UPLOADED",
       summary: `Uploaded file "${file.name}"`,
     },
+  });
+
+  await notifyProjectMembers({
+    projectId: payload.projectId,
+    actorId: userId,
+    fileId: file.id,
+    type: "FILE_UPLOADED",
+    title: "New file uploaded",
+    body: `"${file.name}" was uploaded to the project.`,
+    href: `/dashboard?fileId=${file.id}`,
   });
 
   return NextResponse.json({ file: serializeFile(file) }, { status: 201 });

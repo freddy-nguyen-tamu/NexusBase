@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { notifyProjectMembers } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 const DEFAULT_CHAT_SLUG = "team-chat";
@@ -302,6 +303,15 @@ export async function POST(request: Request) {
       action: "CREATED",
       summary: "Sent a team chat message",
     },
+  });
+
+  await notifyProjectMembers({
+    projectId: parsed.data.projectId,
+    actorId: userId,
+    type: "MESSAGE_CREATED",
+    title: "New team message",
+    body: "A new message was posted in team chat.",
+    href: `/dashboard?projectId=${parsed.data.projectId}`,
   });
 
   return NextResponse.json({ message: serializeMessage(message) }, { status: 201 });
