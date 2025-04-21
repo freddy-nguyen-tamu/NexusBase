@@ -75,6 +75,7 @@ model User {
   emailVerified      DateTime?
   image              String?
   role               UserRole       @default(USER)
+  disabledAt         DateTime?
   profile            Profile?
   accounts           Account[]
   sessions           Session[]
