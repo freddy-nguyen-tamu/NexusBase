@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { FileTable } from "@/components/dashboard/file-table";
 import { GlobalSearch } from "@/components/dashboard/global-search";
 import { MembersPanel } from "@/components/dashboard/members-panel";
@@ -221,6 +222,7 @@ export default function Home() {
             <FileTable />
             <TeamChat />
             <NotificationsPanel />
+            <ActivityFeed />
           </div>
 
           <div className="hupr-operations-grid">
