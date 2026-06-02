@@ -1,27 +1,44 @@
 "use client";
 
 import {
-  useEffect,
-  useMemo,
-  useState,
-  type DragEvent,
-  type FormEvent,
-} from "react";
-import {
   AlertCircle,
   CalendarDays,
   GripVertical,
   Loader2,
   Plus,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type DragEvent,
+  type FormEvent,
+} from "react";
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import {
-  tasks as sampleTasks,
-  type WorkspaceTask,
-  type WorkspaceTaskStatus,
-} from "@/lib/sample-data";
+
+type WorkspaceTaskStatus = "todo" | "inProgress" | "done";
+
+type WorkspaceTask = {
+  id: string;
+  title: string;
+  description: string;
+  project: string;
+  assignee: string;
+  dueDate: string;
+  priority: "Low" | "Medium" | "High" | "Urgent";
+  status: WorkspaceTaskStatus;
+  tags: string[];
+};
+
+type Project = {
+  id: string;
+  name: string;
+  slug: string;
+};
 
 type ApiTaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 type ApiTaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
@@ -131,17 +148,25 @@ function mapApiTask(task: ApiTask): WorkspaceTask {
   };
 }
 
-function getFirstSampleProjectId() {
-  return "default-project";
+async function readError(response: Response, fallback: string) {
+  const data = (await response.json().catch(() => null)) as
+    | { error?: string }
+    | null;
+
+  return data?.error ?? fallback;
 }
 
 export function TaskBoard() {
-  const [items, setItems] = useState<WorkspaceTask[]>(sampleTasks);
+  const router = useRouter();
+  const [items, setItems] = useState<WorkspaceTask[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState("");
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [busyTaskId, setBusyTaskId] = useState<string | null>(null);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [usingDemoData, setUsingDemoData] = useState(true);
 
   const [title, setTitle] = useState("");
   const [priority, setPriority] =
@@ -154,12 +179,12 @@ export function TaskBoard() {
     }));
   }, [items]);
 
-  async function loadTasks() {
-    setIsLoading(true);
+  async function loadProjects() {
+    setIsLoadingProjects(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/tasks", {
+      const response = await fetch("/api/projects", {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -167,42 +192,80 @@ export function TaskBoard() {
       });
 
       if (response.status === 401) {
-        setUsingDemoData(true);
+        setProjects([]);
+        setSelectedProjectId("");
         setError("Sign in to load saved workspace tasks.");
-        setItems(sampleTasks);
         return;
       }
 
       if (!response.ok) {
-        throw new Error("Could not load saved tasks.");
+        throw new Error(await readError(response, "Could not load projects."));
       }
 
-      const data = (await response.json()) as { tasks: ApiTask[] };
+      const data = (await response.json()) as { projects: Project[] };
 
-      if (!data.tasks.length) {
-        setUsingDemoData(true);
-        setItems(sampleTasks);
-        return;
-      }
-
-      setUsingDemoData(false);
-      setItems(data.tasks.map(mapApiTask));
+      setProjects(data.projects);
+      setSelectedProjectId((current) => current || data.projects[0]?.id || "");
     } catch (loadError) {
-      setUsingDemoData(true);
-      setItems(sampleTasks);
+      setProjects([]);
+      setSelectedProjectId("");
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "Could not load saved tasks.",
+          : "Could not load projects.",
       );
     } finally {
-      setIsLoading(false);
+      setIsLoadingProjects(false);
+    }
+  }
+
+  async function loadTasks(projectId = selectedProjectId) {
+    setIsLoadingTasks(true);
+    setError(null);
+
+    try {
+      const params = new URLSearchParams();
+
+      if (projectId) {
+        params.set("projectId", projectId);
+      }
+
+      const response = await fetch(`/api/tasks?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (response.status === 401) {
+        setItems([]);
+        setError("Sign in to load saved workspace tasks.");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(await readError(response, "Could not load tasks."));
+      }
+
+      const data = (await response.json()) as { tasks: ApiTask[] };
+      setItems(data.tasks.map(mapApiTask));
+    } catch (loadError) {
+      setItems([]);
+      setError(
+        loadError instanceof Error ? loadError.message : "Could not load tasks.",
+      );
+    } finally {
+      setIsLoadingTasks(false);
     }
   }
 
   useEffect(() => {
-    void loadTasks();
+    void loadProjects();
   }, []);
+
+  useEffect(() => {
+    void loadTasks(selectedProjectId);
+  }, [selectedProjectId]);
 
   async function persistStatus(taskId: string, status: WorkspaceTaskStatus) {
     const response = await fetch("/api/tasks", {
@@ -217,7 +280,7 @@ export function TaskBoard() {
     });
 
     if (!response.ok) {
-      throw new Error("Could not save task status.");
+      throw new Error(await readError(response, "Could not save task status."));
     }
 
     const data = (await response.json()) as { task: ApiTask };
@@ -231,9 +294,8 @@ export function TaskBoard() {
       current.map((task) => (task.id === taskId ? { ...task, status } : task)),
     );
 
-    if (usingDemoData) {
-      return;
-    }
+    setBusyTaskId(taskId);
+    setError(null);
 
     try {
       const updatedTask = await persistStatus(taskId, status);
@@ -241,6 +303,7 @@ export function TaskBoard() {
       setItems((current) =>
         current.map((task) => (task.id === taskId ? updatedTask : task)),
       );
+      router.refresh();
     } catch (moveError) {
       setItems(previousItems);
       setError(
@@ -248,6 +311,8 @@ export function TaskBoard() {
           ? moveError.message
           : "Could not save task status.",
       );
+    } finally {
+      setBusyTaskId(null);
     }
   }
 
@@ -273,27 +338,13 @@ export function TaskBoard() {
 
     const trimmedTitle = title.trim();
 
-    if (!trimmedTitle) {
-      setError("Task title is required.");
+    if (!selectedProjectId) {
+      setError("Create or select a project before adding tasks.");
       return;
     }
 
-    if (usingDemoData) {
-      const demoTask: WorkspaceTask = {
-        id: `demo-${Date.now()}`,
-        title: trimmedTitle,
-        description:
-          "Demo task. Sign in and connect a real project to persist this.",
-        project: "Demo Workspace",
-        assignee: "Unassigned",
-        dueDate: "No due date",
-        priority,
-        status: "todo",
-        tags: ["Demo"],
-      };
-
-      setItems((current) => [demoTask, ...current]);
-      setTitle("");
+    if (!trimmedTitle) {
+      setError("Task title is required.");
       return;
     }
 
@@ -307,7 +358,7 @@ export function TaskBoard() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          projectId: getFirstSampleProjectId(),
+          projectId: selectedProjectId,
           title: trimmedTitle,
           description: "Created from the NexusBase Kanban board.",
           priority: priorityToApi[priority],
@@ -317,12 +368,13 @@ export function TaskBoard() {
       });
 
       if (!response.ok) {
-        throw new Error("Could not create task.");
+        throw new Error(await readError(response, "Could not create task."));
       }
 
       const data = (await response.json()) as { task: ApiTask };
       setItems((current) => [mapApiTask(data.task), ...current]);
       setTitle("");
+      router.refresh();
     } catch (createError) {
       setError(
         createError instanceof Error
@@ -331,6 +383,44 @@ export function TaskBoard() {
       );
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function deleteTask(task: WorkspaceTask) {
+    const confirmed = window.confirm(`Delete "${task.title}"?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setBusyTaskId(task.id);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          taskId: task.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await readError(response, "Could not delete task."));
+      }
+
+      setItems((current) => current.filter((item) => item.id !== task.id));
+      router.refresh();
+    } catch (deleteError) {
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "Could not delete task.",
+      );
+    } finally {
+      setBusyTaskId(null);
     }
   }
 
@@ -344,25 +434,19 @@ export function TaskBoard() {
           <p className="text-sm text-slate-500">
             Create tasks and drag cards between columns to update status.
           </p>
-          {usingDemoData ? (
-            <p className="mt-1 text-xs font-medium text-amber-700">
-              Demo mode: sign in and use a real project to persist changes.
-            </p>
-          ) : (
-            <p className="mt-1 text-xs font-medium text-emerald-700">
-              Connected to saved workspace tasks.
-            </p>
-          )}
+          <p className="mt-1 text-xs font-medium text-emerald-700">
+            Connected to saved workspace tasks.
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-            disabled={isLoading}
+            disabled={isLoadingTasks}
             onClick={() => void loadTasks()}
             type="button"
           >
-            {isLoading ? (
+            {isLoadingTasks ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <RefreshCw className="h-3.5 w-3.5" />
@@ -377,13 +461,34 @@ export function TaskBoard() {
       </div>
 
       <form
-        className="mb-4 grid gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-[1fr_160px_auto]"
+        className="mb-4 grid gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-[220px_1fr_160px_auto]"
         onSubmit={createTask}
       >
+        <label className="block">
+          <span className="sr-only">Project</span>
+          <select
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            disabled={isLoadingProjects || isSaving}
+            onChange={(event) => setSelectedProjectId(event.target.value)}
+            value={selectedProjectId}
+          >
+            {isLoadingProjects ? <option>Loading projects...</option> : null}
+            {!isLoadingProjects && projects.length === 0 ? (
+              <option value="">No projects found</option>
+            ) : null}
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <label className="block">
           <span className="sr-only">Task title</span>
           <input
             className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            disabled={!selectedProjectId || isSaving}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Add a task, e.g. Build project creation flow"
             value={title}
@@ -394,6 +499,7 @@ export function TaskBoard() {
           <span className="sr-only">Priority</span>
           <select
             className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            disabled={!selectedProjectId || isSaving}
             onChange={(event) =>
               setPriority(event.target.value as WorkspaceTask["priority"])
             }
@@ -408,7 +514,7 @@ export function TaskBoard() {
 
         <button
           className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#10151f] px-4 text-sm font-semibold text-white hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60"
-          disabled={isSaving}
+          disabled={!selectedProjectId || isSaving || !title.trim()}
           type="submit"
         >
           {isSaving ? (
@@ -445,68 +551,96 @@ export function TaskBoard() {
             </div>
 
             <div className="space-y-3">
-              {column.tasks.map((task) => (
-                <article
-                  key={task.id}
-                  className={cn(
-                    "cursor-grab rounded-lg border border-l-4 border-slate-200 bg-white p-4 shadow-sm active:cursor-grabbing",
-                    column.border,
-                    draggingTaskId === task.id && "opacity-60",
-                  )}
-                  draggable
-                  onDragEnd={() => setDraggingTaskId(null)}
-                  onDragStart={(event) => onDragStart(event, task.id)}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <h4 className="text-sm font-semibold leading-5 text-slate-950">
-                      {task.title}
-                    </h4>
-                    <GripVertical
-                      className="h-4 w-4 shrink-0 text-slate-300"
-                      aria-hidden="true"
-                    />
-                  </div>
+              {isLoadingTasks ? (
+                <div className="rounded-lg border border-slate-200 bg-white p-4 text-center text-sm text-slate-500">
+                  <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
+                  Loading tasks...
+                </div>
+              ) : null}
 
-                  <p className="mt-2 text-sm leading-5 text-slate-500">
-                    {task.description}
-                  </p>
+              {!isLoadingTasks &&
+                column.tasks.map((task) => {
+                  const isBusy = busyTaskId === task.id;
 
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {task.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
-                    <span
+                  return (
+                    <article
+                      key={task.id}
                       className={cn(
-                        "rounded-full px-2 py-1 font-semibold",
-                        priorityStyles[task.priority],
+                        "cursor-grab rounded-lg border border-l-4 border-slate-200 bg-white p-4 shadow-sm active:cursor-grabbing",
+                        column.border,
+                        draggingTaskId === task.id && "opacity-60",
+                        isBusy && "opacity-70",
                       )}
+                      draggable={!isBusy}
+                      onDragEnd={() => setDraggingTaskId(null)}
+                      onDragStart={(event) => onDragStart(event, task.id)}
                     >
-                      {task.priority}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <CalendarDays
-                        className="h-3.5 w-3.5"
-                        aria-hidden="true"
-                      />
-                      {task.dueDate}
-                    </span>
-                  </div>
+                      <div className="flex items-start justify-between gap-3">
+                        <h4 className="text-sm font-semibold leading-5 text-slate-950">
+                          {task.title}
+                        </h4>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            className="grid h-7 w-7 place-items-center rounded-lg text-rose-500 hover:bg-rose-50 disabled:opacity-50"
+                            disabled={isBusy}
+                            onClick={() => void deleteTask(task)}
+                            title="Delete task"
+                            type="button"
+                          >
+                            {isBusy ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                          <GripVertical
+                            className="h-4 w-4 text-slate-300"
+                            aria-hidden="true"
+                          />
+                        </div>
+                      </div>
 
-                  <div className="mt-3 text-xs font-medium text-slate-500">
-                    {task.assignee} · {task.project}
-                  </div>
-                </article>
-              ))}
+                      <p className="mt-2 text-sm leading-5 text-slate-500">
+                        {task.description}
+                      </p>
 
-              {!column.tasks.length ? (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {task.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-1 font-semibold",
+                            priorityStyles[task.priority],
+                          )}
+                        >
+                          {task.priority}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <CalendarDays
+                            className="h-3.5 w-3.5"
+                            aria-hidden="true"
+                          />
+                          {task.dueDate}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 text-xs font-medium text-slate-500">
+                        {task.assignee} / {task.project}
+                      </div>
+                    </article>
+                  );
+                })}
+
+              {!isLoadingTasks && !column.tasks.length ? (
                 <div className="rounded-lg border border-dashed border-slate-300 bg-white/70 p-4 text-center text-sm text-slate-400">
                   Drop tasks here
                 </div>

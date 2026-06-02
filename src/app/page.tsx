@@ -9,21 +9,15 @@ import { ProjectManager } from "@/components/dashboard/project-manager";
 import { TaskBoard } from "@/components/dashboard/task-board";
 import { TaskComments } from "@/components/dashboard/task-comments";
 import { TeamChat } from "@/components/dashboard/team-chat";
-import {
-  activity,
-  files,
-  members,
-  messages,
-  notifications,
-  tasks,
-  workspaceStats,
-} from "@/lib/sample-data";
+import { getDashboardSnapshot } from "@/lib/dashboard-data";
 
 const taskColumns = [
   { id: "todo", label: "TODO" },
   { id: "inProgress", label: "IN PROGRESS" },
   { id: "done", label: "DONE" },
 ] as const;
+
+export const dynamic = "force-dynamic";
 
 const featureBands = [
   {
@@ -72,7 +66,18 @@ function ResearchVisual({ tone = "pink" }: { tone?: "pink" | "clay" | "rouge" | 
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const {
+    activity,
+    files,
+    members,
+    messages,
+    notifications,
+    recordCount,
+    tasks,
+    workspaceStats,
+  } = await getDashboardSnapshot();
+
   return (
     <div className="hupr-app">
       <MenuBlock />
@@ -115,7 +120,7 @@ export default function Home() {
               <span>HIGHLIGHTS</span>
               <span>03/04</span>
             </div>
-            <p className="hupr-fact__number">+ {tasks.length * 14}</p>
+            <p className="hupr-fact__number">+ {recordCount}</p>
             <p className="hupr-fact__copy">
               Workspace records connect project ownership, assignment flow,
               secure files, realtime-ready collaboration, and audit history.

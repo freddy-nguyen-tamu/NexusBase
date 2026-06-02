@@ -1,8 +1,12 @@
 import { ShieldCheck } from "lucide-react";
 
-import { adminMetrics } from "@/lib/sample-data";
+type AdminMetric = {
+  label: string;
+  value: string;
+  detail: string;
+};
 
-export function AdminSnapshot() {
+export function AdminSnapshot({ metrics = [] }: { metrics?: AdminMetric[] }) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
@@ -14,7 +18,7 @@ export function AdminSnapshot() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {adminMetrics.map((metric) => (
+        {metrics.map((metric) => (
           <article key={metric.label} className="rounded-lg border border-slate-200 p-3">
             <p className="text-xs font-semibold uppercase text-slate-500">{metric.label}</p>
             <p className="mt-1 text-2xl font-semibold text-slate-950">{metric.value}</p>

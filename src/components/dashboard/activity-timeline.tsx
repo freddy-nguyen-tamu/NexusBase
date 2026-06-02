@@ -1,8 +1,18 @@
 import { Activity, Dot } from "lucide-react";
 
-import { activity } from "@/lib/sample-data";
+type TimelineActivity = {
+  actor: string;
+  action: string;
+  subject: string;
+  scope: string;
+  time: string;
+};
 
-export function ActivityTimeline() {
+export function ActivityTimeline({
+  activity = [],
+}: {
+  activity?: TimelineActivity[];
+}) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">

@@ -1,8 +1,12 @@
 import { MessageSquare, Send } from "lucide-react";
 
-import { messages } from "@/lib/sample-data";
+type ChatPanelMessage = {
+  author: string;
+  body: string;
+  time: string;
+};
 
-export function ChatPanel() {
+export function ChatPanel({ messages = [] }: { messages?: ChatPanelMessage[] }) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">

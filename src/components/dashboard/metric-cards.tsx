@@ -1,21 +1,27 @@
 import { ArrowDownRight, ArrowUpRight, BarChart3, Cloud, ListTodo, MessageCircle } from "lucide-react";
 
-import { workspaceStats } from "@/lib/sample-data";
-
 const icons = [BarChart3, ListTodo, Cloud, MessageCircle];
 const accents = ["#2563eb", "#0f766e", "#d97706", "#be123c"];
 
-export function MetricCards() {
+type MetricCard = {
+  label: string;
+  value: string;
+  trend?: string;
+  detail: string;
+};
+
+export function MetricCards({ stats = [] }: { stats?: MetricCard[] }) {
   return (
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {workspaceStats.map((stat, index) => {
-        const Icon = icons[index];
-        const isPositive = stat.trend.startsWith("+");
+      {stats.map((stat, index) => {
+        const Icon = icons[index] ?? BarChart3;
+        const trend = stat.trend ?? "0";
+        const isPositive = trend.startsWith("+");
 
         return (
           <article key={stat.label} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100" style={{ color: accents[index] }}>
+              <div className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100" style={{ color: accents[index] ?? "#2563eb" }}>
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
               <span
@@ -26,7 +32,7 @@ export function MetricCards() {
                 }
               >
                 {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                {stat.trend}
+                {trend}
               </span>
             </div>
             <p className="mt-5 text-sm font-medium text-slate-500">{stat.label}</p>

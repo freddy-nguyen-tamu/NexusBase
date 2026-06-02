@@ -28,6 +28,10 @@ const updateTaskSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
+const deleteTaskSchema = z.object({
+  taskId: z.string().min(1, "Task is required"),
+});
+
 async function requireUser() {
   const session = await getServerSession(authOptions);
 
@@ -305,4 +309,39 @@ export async function PATCH(request: Request) {
   }
 
   return NextResponse.json({ task });
+}
+
+export async function DELETE(request: Request) {
+  const { userId, response } = await requireUser();
+
+  if (!userId) {
+    return response;
+  }
+
+  const payload = deleteTaskSchema.parse(await request.json());
+  const existingTask = await assertTaskAccess(payload.taskId, userId);
+
+  if (!existingTask) {
+    return NextResponse.json(
+      { error: "Task not found or access denied" },
+      { status: 404 },
+    );
+  }
+
+  await prisma.task.delete({
+    where: {
+      id: payload.taskId,
+    },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      projectId: existingTask.projectId,
+      actorId: userId,
+      action: "DELETED",
+      summary: `Deleted task "${existingTask.title}"`,
+    },
+  });
+
+  return NextResponse.json({ ok: true });
 }
