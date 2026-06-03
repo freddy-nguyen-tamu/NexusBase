@@ -41,7 +41,7 @@ async function requireUser() {
 
   return {
     userId: session.user.id,
-    response: null,
+    response: NextResponse.json({ error: "Internal Server Error" }, { status: 500 }),
   };
 }
 
