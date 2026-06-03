@@ -1,0 +1,1 @@
+export default function Page() { return <div className="p-8"><h1 className="font-heading text-2xl font-semibold text-framer-text capitalize">settings</h1><p className="text-framer-muted mt-2">Coming soon.</p></div>; }
