@@ -4,6 +4,7 @@ NexusBase is a full-stack collaborative workspace platform: a compact Google Dri
 
 It demonstrates authentication, project/task workflows, cloud file storage, role-based permissions, notifications, audit logs, admin analytics, and a polished responsive dashboard.
 
+
 ## Tech stack
 
 - Next.js App Router
