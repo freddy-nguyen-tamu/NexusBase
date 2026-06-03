@@ -156,141 +156,149 @@ function getActionFilter(
 }
 
 export async function GET(request: Request) {
-  const { userId, response } = await requireUser();
+  try {
+    const { userId, response } = await requireUser();
 
-  if (!userId) {
-    return response;
-  }
+    if (!userId) {
+      return response || NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-  const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.url);
 
-  const parsed = activityQuerySchema.safeParse({
-    projectId: searchParams.get("projectId") || undefined,
-    type: searchParams.get("type") || "all",
-    limit: searchParams.get("limit") || "50",
-  });
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
-      { status: 400 },
-    );
-  }
-
-  if (parsed.data.projectId) {
-    const membership = await prisma.projectMember.findFirst({
-      where: {
-        projectId: parsed.data.projectId,
-        userId,
-      },
-      select: {
-        id: true,
-      },
+    const parsed = activityQuerySchema.safeParse({
+      projectId: searchParams.get("projectId") || undefined,
+      type: searchParams.get("type") || "all",
+      limit: searchParams.get("limit") || "50",
     });
 
-    if (!membership) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Project not found or access denied" },
-        { status: 404 },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 },
       );
     }
-  }
 
-  const actionFilter = getActionFilter(parsed.data.type);
-  const accessFilter: Prisma.ActivityLogWhereInput = parsed.data.projectId
-    ? {
-        projectId: parsed.data.projectId,
+    if (parsed.data.projectId) {
+      const membership = await prisma.projectMember.findFirst({
+        where: {
+          projectId: parsed.data.projectId,
+          userId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!membership) {
+        return NextResponse.json(
+          { error: "Project not found or access denied" },
+          { status: 404 },
+        );
       }
-    : {
-        OR: [
-          {
-            project: {
-              members: {
-                some: {
-                  userId,
+    }
+
+    const actionFilter = getActionFilter(parsed.data.type);
+    const accessFilter: Prisma.ActivityLogWhereInput = parsed.data.projectId
+      ? {
+          projectId: parsed.data.projectId,
+        }
+      : {
+          OR: [
+            {
+              project: {
+                members: {
+                  some: {
+                    userId,
+                  },
                 },
               },
             },
+            {
+              actorId: userId,
+            },
+          ],
+        };
+
+    const activity = await prisma.activityLog.findMany({
+      where: {
+        AND: [accessFilter, ...(actionFilter ? [actionFilter] : [])],
+      },
+      include: {
+        actor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
           },
-          {
-            actorId: userId,
+        },
+        project: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
           },
-        ],
-      };
+        },
+        task: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            priority: true,
+          },
+        },
+        file: {
+          select: {
+            id: true,
+            name: true,
+            mimeType: true,
+            sizeBytes: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: parsed.data.limit,
+    });
 
-  const activity = await prisma.activityLog.findMany({
-    where: {
-      AND: [accessFilter, ...(actionFilter ? [actionFilter] : [])],
-    },
-    include: {
-      actor: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
+    const projects = await prisma.project.findMany({
+      where: {
+        members: {
+          some: {
+            userId,
+          },
         },
       },
-      project: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
       },
-      task: {
-        select: {
-          id: true,
-          title: true,
-          status: true,
-          priority: true,
-        },
+      orderBy: {
+        updatedAt: "desc",
       },
-      file: {
-        select: {
-          id: true,
-          name: true,
-          mimeType: true,
-          sizeBytes: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: parsed.data.limit,
-  });
+    });
 
-  const projects = await prisma.project.findMany({
-    where: {
-      members: {
-        some: {
-          userId,
-        },
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
-
-  return NextResponse.json({
-    activity: activity.map((item) => ({
-      ...item,
-      file: item.file
-        ? {
-            id: item.file.id,
-            name: item.file.name,
-            mimeType: item.file.mimeType,
-            size: Number(item.file.sizeBytes),
-          }
-        : null,
-    })),
-    projects,
-  });
+    return NextResponse.json({
+      activity: activity.map((item) => ({
+        ...item,
+        file: item.file
+          ? {
+              id: item.file.id,
+              name: item.file.name,
+              mimeType: item.file.mimeType,
+              size: Number(item.file.sizeBytes),
+            }
+          : null,
+      })),
+      projects,
+    });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
