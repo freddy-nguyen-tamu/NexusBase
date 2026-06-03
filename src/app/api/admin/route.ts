@@ -277,170 +277,194 @@ async function getUsers() {
 }
 
 export async function GET(request: Request) {
-  const { userId, response } = await requireAdmin();
+  try {
+    const { userId, response } = await requireAdmin();
 
-  if (!userId) {
-    return response;
+    if (!userId) {
+      return response || NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const view = searchParams.get("view") ?? "overview";
+
+    if (view === "users") {
+      const users = await getUsers();
+      return NextResponse.json({ users });
+    }
+
+    if (view === "activity") {
+      const activity = await getActivity();
+      return NextResponse.json({ activity });
+    }
+
+    const overview = await getOverview();
+    return NextResponse.json(overview);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
-
-  const { searchParams } = new URL(request.url);
-  const view = searchParams.get("view") ?? "overview";
-
-  if (view === "users") {
-    const users = await getUsers();
-    return NextResponse.json({ users });
-  }
-
-  if (view === "activity") {
-    const activity = await getActivity();
-    return NextResponse.json({ activity });
-  }
-
-  const overview = await getOverview();
-  return NextResponse.json(overview);
 }
 
 export async function PATCH(request: Request) {
-  const { userId, response } = await requireAdmin();
+  try {
+    const { userId, response } = await requireAdmin();
 
-  if (!userId) {
-    return response;
-  }
+    if (!userId) {
+      return response || NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
-  const parsed = updateUserSchema.safeParse(await request.json());
+    const parsed = updateUserSchema.safeParse(await request.json());
 
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
-      { status: 400 },
-    );
-  }
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 },
+      );
+    }
 
-  if (parsed.data.userId === userId && parsed.data.role === "USER") {
-    return NextResponse.json(
-      { error: "You cannot remove your own admin role" },
-      { status: 400 },
-    );
-  }
+    if (parsed.data.userId === userId && parsed.data.role === "USER") {
+      return NextResponse.json(
+        { error: "You cannot remove your own admin role" },
+        { status: 400 },
+      );
+    }
 
-  if (parsed.data.userId === userId && parsed.data.suspended === true) {
-    return NextResponse.json(
-      { error: "You cannot suspend your own account" },
-      { status: 400 },
-    );
-  }
+    if (parsed.data.userId === userId && parsed.data.suspended === true) {
+      return NextResponse.json(
+        { error: "You cannot suspend your own account" },
+        { status: 400 },
+      );
+    }
 
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      id: parsed.data.userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      disabledAt: true,
-    },
-  });
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        id: parsed.data.userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        disabledAt: true,
+      },
+    });
 
-  if (!existingUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
+    if (!existingUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
-  const user = await prisma.user.update({
-    where: {
-      id: parsed.data.userId,
-    },
-    data: {
-      ...(parsed.data.role ? { role: parsed.data.role } : {}),
-      ...(parsed.data.suspended !== undefined
-        ? { disabledAt: parsed.data.suspended ? new Date() : null }
-        : {}),
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-      role: true,
-      disabledAt: true,
-      createdAt: true,
-      updatedAt: true,
-      _count: {
-        select: {
-          memberships: true,
-          createdTasks: true,
-          assignedTasks: true,
-          files: true,
-          comments: true,
-          messages: true,
-          notifications: true,
+    const user = await prisma.user.update({
+      where: {
+        id: parsed.data.userId,
+      },
+      data: {
+        ...(parsed.data.role ? { role: parsed.data.role } : {}),
+        ...(parsed.data.suspended !== undefined
+          ? { disabledAt: parsed.data.suspended ? new Date() : null }
+          : {}),
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        disabledAt: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            memberships: true,
+            createdTasks: true,
+            assignedTasks: true,
+            files: true,
+            comments: true,
+            messages: true,
+            notifications: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  await prisma.activityLog.create({
-    data: {
-      actorId: userId,
-      action: "UPDATED",
-      summary: `Updated user ${existingUser.email ?? existingUser.id}`,
-    },
-  });
+    await prisma.activityLog.create({
+      data: {
+        actorId: userId,
+        action: "UPDATED",
+        summary: `Updated user ${existingUser.email ?? existingUser.id}`,
+      },
+    });
 
-  return NextResponse.json({ user: serializeUser(user) });
+    return NextResponse.json({ user: serializeUser(user) });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(request: Request) {
-  const { userId, response } = await requireAdmin();
+  try {
+    const { userId, response } = await requireAdmin();
 
-  if (!userId) {
-    return response;
-  }
+    if (!userId) {
+      return response || NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
 
-  const parsed = deleteUserSchema.safeParse(await request.json());
+    const parsed = deleteUserSchema.safeParse(await request.json());
 
-  if (!parsed.success) {
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 },
+      );
+    }
+
+    if (parsed.data.userId === userId) {
+      return NextResponse.json(
+        { error: "You cannot delete your own account" },
+        { status: 400 },
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        id: parsed.data.userId,
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    if (!existingUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    await prisma.user.delete({
+      where: {
+        id: parsed.data.userId,
+      },
+    });
+
+    await prisma.activityLog.create({
+      data: {
+        actorId: userId,
+        action: "DELETED",
+        summary: `Deleted user ${existingUser.email ?? existingUser.id}`,
+      },
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error(error);
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
-      { status: 400 },
+      { error: "Internal Server Error" },
+      { status: 500 }
     );
   }
-
-  if (parsed.data.userId === userId) {
-    return NextResponse.json(
-      { error: "You cannot delete your own account" },
-      { status: 400 },
-    );
-  }
-
-  const existingUser = await prisma.user.findUnique({
-    where: {
-      id: parsed.data.userId,
-    },
-    select: {
-      id: true,
-      email: true,
-    },
-  });
-
-  if (!existingUser) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  await prisma.user.delete({
-    where: {
-      id: parsed.data.userId,
-    },
-  });
-
-  await prisma.activityLog.create({
-    data: {
-      actorId: userId,
-      action: "DELETED",
-      summary: `Deleted user ${existingUser.email ?? existingUser.id}`,
-    },
-  });
-
-  return NextResponse.json({ ok: true });
 }
