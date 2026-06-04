@@ -937,7 +937,7 @@ function FounderSection() {
           <br />
           Built a real startup,
           <br />
-          polished a real product.
+          honed a real product.
         </h2>
         <p
           style={{
