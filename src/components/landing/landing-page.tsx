@@ -888,13 +888,16 @@ function FounderSection() {
         }}
       >
         <div
+          aria-hidden="true"
           style={{
+            minHeight: "28rem",
             width: "100%",
-            aspectRatio: "1",
-            backgroundImage: "url(/assets/background.avif)",
+            backgroundImage: "url('/assets/background.avif')",
             backgroundSize: "cover",
             backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
             borderRadius: 16,
+            border: "1px solid var(--nb-border-solid)",
           }}
         />
       </div>
