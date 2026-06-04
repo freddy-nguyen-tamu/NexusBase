@@ -493,9 +493,10 @@ function ConsistentSetsSection() {
             marginBottom: "1.5rem",
           }}
         >
-          Designed like a real
+          2 years
           <br />
-          SaaS workspace.
+          1 SaaS workspace
+          <br />
         </h2>
 
         <p
@@ -773,7 +774,7 @@ function CtaPanelsSection() {
       title: "GitHub",
       desc: "Fork, extend, and self-host NexusBase on your own infrastructure. MIT licensed.",
       btnLabel: "View Source",
-      href: "https://github.com",
+      href: "https://github.com/freddy-nguyen-tamu/NexusBase",
     },
     {
       sub: "Developers",
@@ -931,11 +932,12 @@ function FounderSection() {
             marginBottom: "1.5rem",
           }}
         >
-          A portfolio-grade SaaS platform
+          
+          SaaS platform.
           <br />
-          demonstrating production
+          Built like a real startup,
           <br />
-          full-stack architecture.
+          polished like a real product.
         </h2>
         <p
           style={{
@@ -1198,7 +1200,7 @@ function Footer() {
               color: "var(--nb-green)",
             }}
           >
-            WINNER
+            LET'S GET IT
           </span>
           <span
             style={{
@@ -1207,7 +1209,7 @@ function Footer() {
               lineHeight: 1.35,
             }}
           >
-            Favourite Full-Stack
+            Full-Stack
             <br />
             Portfolio Project
           </span>
