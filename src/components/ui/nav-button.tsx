@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-const HIDDEN_PATHS = new Set(["/"]);
+const HIDDEN_PATHS = new Set(["/", "/login"]);
 
 function shouldHideDashboardButton(pathname: string) {
   if (HIDDEN_PATHS.has(pathname)) return true;
