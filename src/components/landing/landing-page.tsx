@@ -322,7 +322,7 @@ function HeroSection() {
             Open workspace <ArrowRight size={15} />
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/freddy-nguyen-tamu/NexusBase"
             style={{
               display: "inline-flex",
               alignItems: "center",
