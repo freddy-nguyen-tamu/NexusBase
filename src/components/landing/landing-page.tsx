@@ -80,21 +80,6 @@ const ICON_SETS: IconSetCard[] = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "The only workspace I've ever used. Tasks, files, and chat in one place — no regrets and not even worth looking at alternatives.",
-    name: "Jordan K.",
-    role: "Product lead",
-  },
-  {
-    quote:
-      "I own several project tools but the one I return to over and over is NexusBase, which almost always seems to have the exact feature I need.",
-    name: "Priya S.",
-    role: "Engineering manager",
-  },
-];
-
 const NAV_LINKS = ["Dashboard", "Files", "Team", "Pricing"];
 
 const NAV_LINK_ROUTES: Record<string, string> = {
@@ -107,9 +92,7 @@ const NAV_LINK_ROUTES: Record<string, string> = {
 const FOOTER_FREEBIES = [
   "Open source on GitHub",
   "Free for solo use",
-  "MIT licensed",
   "Self-hostable",
-  "No tracking",
   "Vercel-ready deploy",
 ];
 
@@ -668,75 +651,7 @@ function DesignBandSection() {
 
 // ──────────────────────────────
 function TestimonialsSection() {
-  return (
-    <section
-      style={{
-        borderTop: "1px solid var(--nb-border-solid)",
-        padding: "clamp(3rem, 8vw, 6rem) clamp(1rem, 5vw, 5rem)",
-        background: "var(--nb-bg)",
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: "5rem",
-        alignItems: "start",
-      }}
-    >
-      {TESTIMONIALS.map((t, i) => (
-        <div key={i}>
-          {/* Avatar placeholder */}
-          <div
-            style={{
-              width: 180,
-              height: 180,
-              borderRadius: 12,
-              background: "var(--nb-navy-border)",
-              marginBottom: "1.5rem",
-              overflow: "hidden",
-              display: "grid",
-              placeItems: "center",
-              fontSize: "3rem",
-              color: "var(--nb-navy)",
-            }}
-          >
-            {t.name[0]}
-          </div>
-
-          <blockquote
-            style={{
-              borderLeft: "3px solid var(--nb-green)",
-              paddingLeft: "1.25rem",
-              margin: 0,
-            }}
-          >
-            <p
-              style={{
-                fontSize: "1.05rem",
-                lineHeight: 1.6,
-                color: "var(--nb-navy)",
-                fontStyle: "italic",
-              }}
-            >
-              &ldquo;{t.quote}&rdquo;
-            </p>
-            <footer
-              style={{
-                marginTop: "1rem",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                color: "var(--nb-navy)",
-              }}
-            >
-              {t.name}{" "}
-              <span
-                style={{ fontWeight: 400, color: "var(--nb-muted)" }}
-              >
-                — {t.role}
-              </span>
-            </footer>
-          </blockquote>
-        </div>
-      ))}
-    </section>
-  );
+  return null;
 }
 
 // ──────────────────────────────

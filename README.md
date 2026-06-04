@@ -22,7 +22,7 @@ It demonstrates authentication, project/task workflows, cloud file storage, role
 - Workspace dashboard with responsive sidebar navigation
 - Drag-and-drop kanban board for tasks
 - File table with S3-oriented metadata and sharing states
-- Team chat/comment panel mockup
+- Team chat with real-time messages and comments
 - Notification feed with read/unread states
 - Team member roles and workload summary
 - Activity log for audit-style events
@@ -52,7 +52,7 @@ src/lib
   auth.ts                             NextAuth configuration
   aws/s3.ts                           S3 client and presigned URL helpers
   prisma.ts                           Prisma client singleton
-  sample-data.ts                      Demo workspace content
+  dashboard-data.ts                   Server-side dashboard snapshot
 
 prisma/schema.prisma                  PostgreSQL data model
 ```
@@ -178,8 +178,6 @@ analytics.
 
 ## Next build targets
 
-- Persist dashboard widgets from the Prisma API instead of demo data
-- Add task comments and file comments with live updates
 - Add WebSocket or managed realtime transport for channels and notifications
 - Add Postgres full-text search indexes
 - Add Playwright coverage for auth redirects, task movement, and upload flow

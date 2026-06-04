@@ -3,16 +3,20 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import {
-  activity as fallbackActivity,
-  files as fallbackFiles,
-  members as fallbackMembers,
-  messages as fallbackMessages,
-  notifications as fallbackNotifications,
-  tasks as fallbackTasks,
-  workspaceStats as fallbackWorkspaceStats,
-  type WorkspaceTask,
-} from "@/lib/sample-data";
+
+export type WorkspaceTaskStatus = "todo" | "inProgress" | "done";
+
+export type WorkspaceTask = {
+  id: string;
+  title: string;
+  description: string;
+  project: string;
+  assignee: string;
+  dueDate: string;
+  priority: "Low" | "Medium" | "High" | "Urgent";
+  status: WorkspaceTaskStatus;
+  tags: string[];
+};
 
 type DashboardStat = {
   label: string;
@@ -70,21 +74,20 @@ export type DashboardSnapshot = {
   recordCount: number;
 };
 
-const fallbackDashboard: DashboardSnapshot = {
-  workspaceStats: fallbackWorkspaceStats,
-  tasks: fallbackTasks,
-  files: fallbackFiles,
-  members: fallbackMembers,
-  notifications: fallbackNotifications,
-  activity: fallbackActivity,
-  messages: fallbackMessages,
-  recordCount:
-    fallbackTasks.length +
-    fallbackFiles.length +
-    fallbackMembers.length +
-    fallbackNotifications.length +
-    fallbackActivity.length +
-    fallbackMessages.length,
+const emptyDashboard: DashboardSnapshot = {
+  workspaceStats: [
+    { label: "Active projects", value: "0", detail: "Create your first project" },
+    { label: "Open tasks", value: "0", detail: "No open tasks yet" },
+    { label: "Files stored", value: "0 B", detail: "Upload files to get started" },
+    { label: "Unread updates", value: "0", detail: "You are all caught up" },
+  ],
+  tasks: [],
+  files: [],
+  members: [],
+  notifications: [],
+  activity: [],
+  messages: [],
+  recordCount: 0,
 };
 
 const taskStatusMap: Record<TaskStatus, WorkspaceTask["status"]> = {
@@ -189,7 +192,7 @@ export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
   const userId = session?.user?.id;
 
   if (!userId) {
-    return fallbackDashboard;
+    return emptyDashboard;
   }
 
   const accessibleProjectWhere = {
@@ -385,7 +388,7 @@ export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
   ]);
 
   if (globalProjectCount === 0) {
-    return fallbackDashboard;
+    return emptyDashboard;
   }
 
   const workloadByUser = new Map(
