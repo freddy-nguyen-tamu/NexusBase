@@ -493,9 +493,9 @@ function ConsistentSetsSection() {
             marginBottom: "1.5rem",
           }}
         >
-          2 years
+          All the
           <br />
-          1 SaaS workspace
+          Tech
           <br />
         </h2>
 
@@ -935,9 +935,9 @@ function FounderSection() {
           
           SaaS platform.
           <br />
-          Built like a real startup,
+          Built a real startup,
           <br />
-          polished like a real product.
+          polished a real product.
         </h2>
         <p
           style={{
