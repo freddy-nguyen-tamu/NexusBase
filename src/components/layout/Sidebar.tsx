@@ -17,23 +17,26 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-72 h-screen sticky top-0 border-r border-framer-border bg-white/80 backdrop-blur-xl flex flex-col shrink-0">
-      <div className="h-16 flex items-center px-6 border-b border-framer-border">
-        <span className="font-heading font-semibold tracking-tight text-xl text-framer-text">
+    <aside className="w-72 h-screen sticky top-0 bg-nb-navy text-nb-on-dark flex flex-col shrink-0">
+      <div className="h-16 flex items-center px-6 border-b border-white/10">
+        <span className="font-heading font-black text-white tracking-tight text-xl">
           NexusBase
         </span>
       </div>
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
+      <div className="px-3 pt-4 pb-2">
+        <p className="text-nb-navy-light text-xs font-bold uppercase tracking-widest px-3">Main Menu</p>
+      </div>
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const active = pathname === item.href
           return (
             <a
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
                 active
-                  ? "bg-[#BFFB4F] text-black"
-                  : "text-framer-muted hover:text-framer-text hover:bg-black/[0.04]"
+                  ? "bg-nb-green text-nb-dark"
+                  : "text-nb-navy-border hover:text-white hover:bg-white/10"
               }`}
             >
               {item.label}
@@ -41,12 +44,12 @@ export default function Sidebar() {
           )
         })}
       </nav>
-      <div className="p-3 border-t border-framer-border">
-        <div className="flex items-center gap-3 px-3 py-2.5 text-sm text-framer-muted">
-          <div className="h-8 w-8 rounded-full bg-framer-surface-subtle border border-framer-border flex items-center justify-center text-xs font-semibold text-framer-text">
+      <div className="p-3 border-t border-white/10">
+        <div className="flex items-center gap-3 px-3 py-2.5 text-sm text-nb-navy-border">
+          <div className="h-8 w-8 rounded-full bg-nb-surface-alt border border-nb-border flex items-center justify-center text-xs font-semibold text-nb-text">
             A
           </div>
-          <span className="font-medium">Alex</span>
+          <span className="font-medium text-nb-on-dark">Alex</span>
         </div>
       </div>
     </aside>

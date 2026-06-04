@@ -321,23 +321,23 @@ export function ActivityFeed() {
   }, [projectId, type, limit]);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+    <section className="rounded-xl border border-nb-border bg-white p-4 shadow-sm">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-slate-950">
+            <Activity className="h-5 w-5 text-nb-navy" />
+            <h2 className="text-lg font-semibold text-nb-text">
               Activity timeline
             </h2>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-nb-muted">
             Track project changes, task movement, file events, comments,
             messages, member updates, and admin actions.
           </p>
         </div>
 
         <button
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-nb-border px-3 text-xs font-semibold text-nb-muted hover:border-nb-navy-border hover:bg-nb-surface-alt disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isLoading}
           onClick={() => void loadActivity()}
           type="button"
@@ -351,15 +351,15 @@ export function ActivityFeed() {
         </button>
       </div>
 
-      <div className="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[1fr_180px_220px_120px]">
+      <div className="mb-4 grid gap-3 rounded-lg border border-nb-border bg-nb-surface-alt p-3 lg:grid-cols-[1fr_180px_220px_120px]">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Search activity
           </span>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-nb-muted" />
             <input
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+              className="h-10 w-full rounded-lg border border-nb-border bg-white pl-9 pr-3 text-sm text-nb-text outline-none transition placeholder:text-nb-muted focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search actor, task, file, action..."
               value={query}
@@ -368,11 +368,11 @@ export function ActivityFeed() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Type
           </span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             onChange={(event) => setType(event.target.value as ActivityType)}
             value={type}
           >
@@ -385,11 +385,11 @@ export function ActivityFeed() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Project
           </span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             onChange={(event) => setProjectId(event.target.value)}
             value={projectId}
           >
@@ -403,11 +403,11 @@ export function ActivityFeed() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Limit
           </span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             onChange={(event) => setLimit(event.target.value)}
             value={limit}
           >
@@ -419,7 +419,7 @@ export function ActivityFeed() {
       </div>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-nb-orange/30 bg-orange-50 px-3 py-2 text-sm text-nb-orange">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
@@ -433,9 +433,9 @@ export function ActivityFeed() {
         <StatCard label="File events" value={stats.fileEvents} />
       </div>
 
-      <div className="rounded-lg border border-slate-200">
+      <div className="rounded-lg border border-nb-border">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-slate-500">
+          <div className="p-8 text-center text-sm text-nb-muted">
             <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
             Loading activity...
           </div>
@@ -443,18 +443,18 @@ export function ActivityFeed() {
 
         {!isLoading && filteredActivity.length === 0 ? (
           <div className="p-8 text-center">
-            <Activity className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-            <h3 className="text-sm font-semibold text-slate-800">
+            <Activity className="mx-auto mb-3 h-8 w-8 text-nb-gray-400" />
+            <h3 className="text-sm font-semibold text-nb-text">
               No activity found
             </h3>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-nb-muted">
               Try changing the filter, project, or search text.
             </p>
           </div>
         ) : null}
 
         {!isLoading && filteredActivity.length > 0 ? (
-          <div className="divide-y divide-slate-200">
+          <div className="divide-y divide-nb-border">
             {filteredActivity.map((item) => {
               const Icon = getActivityIcon(item);
               const contextParts = getContextParts(item);
@@ -464,7 +464,7 @@ export function ActivityFeed() {
                   <div className="flex gap-3">
                     <div
                       className={cn(
-                        "grid h-10 w-10 shrink-0 place-items-center rounded-lg ring-1",
+                        "grid h-10 w-10 shrink-0 place-items-center rounded-xl ring-1",
                         getActivityStyle(item),
                       )}
                     >
@@ -474,30 +474,30 @@ export function ActivityFeed() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
-                          <h3 className="text-sm font-semibold text-slate-950">
+                          <h3 className="text-sm font-semibold text-nb-text">
                             {item.summary}
                           </h3>
-                          <p className="mt-1 text-xs text-slate-500">
+                          <p className="mt-1 text-xs text-nb-muted">
                             {item.action} by{" "}
-                            <span className="font-semibold text-slate-700">
+                            <span className="font-semibold text-nb-text">
                               {getActorName(item)}
                             </span>
                           </p>
                         </div>
 
-                        <span className="shrink-0 text-xs text-slate-400">
+                        <span className="shrink-0 text-xs text-nb-muted">
                           {formatDateTime(item.createdAt)}
                         </span>
                       </div>
 
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                        <span className="rounded-full bg-nb-surface-alt px-2.5 py-1 text-xs font-semibold text-nb-muted">
                           Actor: {getActorInitials(item)}
                         </span>
 
                         {contextParts.map((part) => (
                           <span
-                            className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                            className="rounded-full bg-nb-surface-alt px-2.5 py-1 text-xs font-semibold text-nb-muted"
                             key={part}
                           >
                             {part}
@@ -506,7 +506,7 @@ export function ActivityFeed() {
 
                         {item.task ? (
                           <>
-                            <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                            <span className="rounded-full bg-nb-navy/10 px-2.5 py-1 text-xs font-semibold text-nb-navy">
                               {item.task.status}
                             </span>
                             <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
@@ -516,7 +516,7 @@ export function ActivityFeed() {
                         ) : null}
 
                         {item.file ? (
-                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                          <span className="rounded-full bg-nb-green-pale px-2.5 py-1 text-xs font-semibold text-nb-green-dark">
                             {item.file.mimeType} - {formatBytes(item.file.size)}
                           </span>
                         ) : null}
@@ -535,11 +535,11 @@ export function ActivityFeed() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+    <div className="rounded-lg border border-nb-border bg-white px-3 py-2">
+      <p className="text-xs font-bold uppercase tracking-widest text-nb-muted">
         {label}
       </p>
-      <p className="mt-1 text-xl font-bold text-slate-950">
+      <p className="mt-1 text-xl font-bold text-nb-text">
         {value.toLocaleString()}
       </p>
     </div>

@@ -13,42 +13,54 @@ export default function DashboardPage() {
     <DashboardShell>
       <StatsCards />
 
-      <div className="grid grid-cols-12 gap-6 mt-6">
-        <div className="col-span-4">
-          <div className="rounded-2xl bg-white border border-black/[0.04] p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-            <h2 className="font-heading text-lg font-semibold tracking-tight text-framer-text mb-4">Projects</h2>
+      <div className="mt-6 grid grid-cols-12 gap-6">
+        <div className="sl-card col-span-4">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+            Projects
+          </h2>
+          <div className="mt-4">
             <ProjectManager />
           </div>
         </div>
 
-        <div className="col-span-8">
-          <div className="rounded-2xl bg-white border border-black/[0.04] p-6 shadow-sm hover:shadow-lg transition-all duration-300 min-h-[500px]">
-            <h2 className="font-heading text-lg font-semibold tracking-tight text-framer-text mb-4">Task Board</h2>
+        <div className="sl-card col-span-8 min-h-[500px]">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+            Task Board
+          </h2>
+          <div className="mt-4">
             <TaskBoard />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 mt-6">
-        <div className="col-span-8">
-          <div className="rounded-2xl bg-white border border-black/[0.04] p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-            <h2 className="font-heading text-lg font-semibold tracking-tight text-framer-text mb-4">Workspace Files</h2>
+      <div className="mt-6 grid grid-cols-12 gap-6">
+        <div className="sl-card col-span-8">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+            Workspace Files
+          </h2>
+          <div className="mt-4">
             <FileTable />
           </div>
         </div>
 
-        <div className="col-span-4">
-          <div className="rounded-2xl bg-white border border-black/[0.04] p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-            <h2 className="font-heading text-lg font-semibold tracking-tight text-framer-text mb-4">Activity</h2>
+        <div className="sl-card col-span-4">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+            Activity
+          </h2>
+          <div className="mt-4">
             <ActivityFeed />
           </div>
         </div>
       </div>
 
       <div className="mt-6">
-        <div className="rounded-2xl bg-white/70 backdrop-blur-xl border border-black/[0.04] p-6 shadow-sm hover:shadow-lg transition-all duration-300">
-          <h2 className="font-heading text-lg font-semibold tracking-tight text-framer-text mb-4">Team Chat</h2>
-          <TeamChat />
+        <div className="sl-card">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+            Team Chat
+          </h2>
+          <div className="mt-4">
+            <TeamChat />
+          </div>
         </div>
       </div>
     </DashboardShell>

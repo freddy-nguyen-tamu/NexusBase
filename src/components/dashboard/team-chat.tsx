@@ -404,16 +404,16 @@ export function TeamChat() {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+    <section className="rounded-xl border border-nb-border bg-white p-4 shadow-sm">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-slate-950">
+            <MessageCircle className="h-5 w-5 text-nb-navy" />
+            <h2 className="text-lg font-semibold text-nb-text">
               Team chat
             </h2>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-nb-muted">
             Project-scoped chat with member access checks and auto-refresh.
           </p>
         </div>
@@ -423,8 +423,8 @@ export function TeamChat() {
             className={cn(
               "inline-flex h-9 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-semibold",
               autoRefresh
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-slate-200 text-slate-600 hover:bg-slate-50",
+                ? "border-nb-green bg-nb-green-pale text-nb-green-dark"
+                : "border-nb-border text-nb-muted hover:bg-nb-surface-alt",
             )}
             onClick={() => setAutoRefresh((current) => !current)}
             type="button"
@@ -433,7 +433,7 @@ export function TeamChat() {
           </button>
 
           <button
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-nb-border px-3 text-xs font-semibold text-nb-muted hover:border-nb-navy-border hover:bg-nb-surface-alt disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isLoadingMessages || !selectedProjectId}
             onClick={() =>
               void loadMessages({
@@ -454,19 +454,19 @@ export function TeamChat() {
       </div>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-nb-orange/30 bg-orange-50 px-3 py-2 text-sm text-nb-orange">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
       ) : null}
 
-      <div className="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+      <div className="mb-4 grid gap-3 rounded-lg border border-nb-border bg-nb-surface-alt p-3 lg:grid-cols-[minmax(0,1fr)_auto]">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Project channel
           </span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={isLoadingProjects}
             onChange={(event) => setSelectedProjectId(event.target.value)}
             value={selectedProjectId}
@@ -487,7 +487,7 @@ export function TeamChat() {
 
         <div className="flex items-end">
           <button
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-600 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-nb-border px-3 text-sm font-semibold text-nb-muted hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isLoadingProjects}
             onClick={() => void loadProjects()}
             type="button"
@@ -503,22 +503,22 @@ export function TeamChat() {
       </div>
 
       {selectedProject ? (
-        <div className="mb-4 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
+        <div className="mb-4 rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-muted">
           Channel:{" "}
-          <span className="font-semibold text-slate-800">
+          <span className="font-semibold text-nb-text">
             #{selectedProject.slug}
           </span>
           {" · "}
           Your role:{" "}
-          <span className="font-semibold text-slate-800">
+          <span className="font-semibold text-nb-text">
             {currentUserRole ?? "Unknown"}
           </span>
         </div>
       ) : null}
 
-      <div className="mb-4 h-[420px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+      <div className="mb-4 h-[420px] overflow-y-auto rounded-lg border border-nb-border bg-nb-surface-alt p-3">
         {isLoadingMessages ? (
-          <div className="flex h-full items-center justify-center text-sm text-slate-500">
+          <div className="flex h-full items-center justify-center text-sm text-nb-muted">
             <div className="text-center">
               <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
               Loading messages...
@@ -529,11 +529,11 @@ export function TeamChat() {
         {!isLoadingMessages && messages.length === 0 ? (
           <div className="flex h-full items-center justify-center text-center">
             <div>
-              <MessageCircle className="mx-auto mb-3 h-9 w-9 text-slate-300" />
-              <h3 className="text-sm font-semibold text-slate-800">
+              <MessageCircle className="mx-auto mb-3 h-9 w-9 text-nb-gray-400" />
+              <h3 className="text-sm font-semibold text-nb-text">
                 No messages yet
               </h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-nb-muted">
                 Start the channel with a project update or question.
               </p>
             </div>
@@ -551,29 +551,32 @@ export function TeamChat() {
             return (
               <article
                 className={cn(
-                  "flex gap-3 rounded-lg border p-3",
+                  "flex gap-3 rounded-2xl border p-3",
                   isMine
-                    ? "border-blue-100 bg-blue-50/50"
-                    : "border-slate-200 bg-white",
+                    ? "bg-nb-navy text-white border-nb-navy"
+                    : "bg-nb-surface-alt text-nb-text border-nb-border",
                 )}
                 key={message.id}
               >
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-slate-100 text-xs font-bold text-slate-700">
+                <div className={cn(
+                  "grid h-9 w-9 shrink-0 place-items-center rounded-lg text-xs font-bold",
+                  isMine ? "bg-white/20 text-white" : "bg-white border border-nb-border text-nb-text",
+                )}>
                   {getInitials(message.author)}
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-950">
+                      <p className={cn("text-sm font-semibold", isMine ? "text-white" : "text-nb-text")}>
                         {getAuthorName(message.author)}
                         {isMine ? (
-                          <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">
+                          <span className={cn("ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase", isMine ? "bg-white/20 text-white" : "bg-nb-navy/10 text-nb-navy")}>
                             You
                           </span>
                         ) : null}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className={cn("text-xs", isMine ? "text-white/60" : "text-nb-muted")}>
                         {formatTime(message.createdAt)}
                         {wasEdited ? " · edited" : ""}
                       </p>
@@ -583,7 +586,7 @@ export function TeamChat() {
                       {isEditing ? (
                         <>
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-50"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-green-dark hover:bg-nb-green-pale disabled:opacity-50"
                             disabled={isBusy}
                             onClick={() => void updateMessage(message.id)}
                             title="Save message"
@@ -597,7 +600,7 @@ export function TeamChat() {
                           </button>
 
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt"
                             onClick={cancelEditing}
                             title="Cancel edit"
                             type="button"
@@ -609,7 +612,7 @@ export function TeamChat() {
                         <>
                           {isMine ? (
                             <button
-                              className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                              className={cn("grid h-8 w-8 place-items-center rounded-lg", isMine ? "text-white/60 hover:bg-white/10" : "text-nb-muted hover:bg-nb-surface-alt")}
                               onClick={() => startEditing(message)}
                               title="Edit message"
                               type="button"
@@ -620,7 +623,7 @@ export function TeamChat() {
 
                           {canDelete ? (
                             <button
-                              className="grid h-8 w-8 place-items-center rounded-lg text-rose-500 hover:bg-rose-50 disabled:opacity-50"
+                              className={cn("grid h-8 w-8 place-items-center rounded-lg disabled:opacity-50", isMine ? "text-white/60 hover:bg-white/10 hover:text-rose-300" : "text-rose-500 hover:bg-rose-50")}
                               disabled={isBusy}
                               onClick={() => void deleteMessage(message)}
                               title="Delete message"
@@ -640,12 +643,12 @@ export function TeamChat() {
 
                   {isEditing ? (
                     <textarea
-                      className="mt-3 min-h-24 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+                      className="mt-3 min-h-24 w-full rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
                       onChange={(event) => setEditingBody(event.target.value)}
                       value={editingBody}
                     />
                   ) : (
-                    <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">
+                    <p className={cn("mt-3 whitespace-pre-wrap text-sm leading-6", isMine ? "text-white/90" : "text-nb-text")}>
                       {message.body}
                     </p>
                   )}
@@ -662,7 +665,7 @@ export function TeamChat() {
         <label className="block">
           <span className="sr-only">Message</span>
           <textarea
-            className="min-h-12 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="min-h-12 w-full rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-text outline-none transition placeholder:text-nb-muted focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={!selectedProjectId || isSending}
             onChange={(event) => setBody(event.target.value)}
             onKeyDown={(event) => {
@@ -678,7 +681,7 @@ export function TeamChat() {
 
         <div className="flex items-start">
           <button
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#10151f] px-4 text-sm font-semibold text-white hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+            className="sl-btn sl-btn--primary h-12"
             disabled={!selectedProjectId || isSending || !body.trim()}
             type="submit"
           >

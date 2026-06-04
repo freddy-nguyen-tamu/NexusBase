@@ -475,23 +475,23 @@ export function FileTable() {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+    <section>
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <UploadCloud className="h-5 w-5 text-[#2563eb]" />
-            <h2 className="text-lg font-semibold text-slate-950">
+            <UploadCloud className="h-5 w-5 text-nb-navy" />
+            <h2 className="text-lg font-bold tracking-tight text-nb-text">
               Workspace files
             </h2>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-nb-muted">
             Upload files to S3, save metadata, and generate secure download
             links.
           </p>
         </div>
 
         <button
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="sl-btn sl-btn--ghost"
           disabled={isLoading}
           onClick={() => void loadFiles()}
           type="button"
@@ -506,15 +506,15 @@ export function FileTable() {
       </div>
 
       <form
-        className="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[220px_1fr_auto]"
+        className="mb-4 grid gap-3 rounded-xl border border-nb-border bg-nb-surface-alt p-3 lg:grid-cols-[220px_1fr_auto]"
         onSubmit={uploadFile}
       >
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Project
           </span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={isLoadingProjects || isUploading}
             onChange={(event) => setSelectedProjectId(event.target.value)}
             value={selectedProjectId}
@@ -532,11 +532,11 @@ export function FileTable() {
         </label>
 
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             File
           </span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 file:mr-3 file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-1 file:text-xs file:font-semibold file:text-slate-700 hover:file:bg-slate-200"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-text file:mr-3 file:rounded-md file:border-0 file:bg-nb-surface-alt file:px-3 file:py-1 file:text-xs file:font-semibold file:text-nb-text hover:file:bg-nb-border"
             disabled={!selectedProjectId || isUploading}
             id="workspace-file"
             onChange={onFileChange}
@@ -546,7 +546,7 @@ export function FileTable() {
 
         <div className="flex items-end">
           <button
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#10151f] px-4 text-sm font-semibold text-white hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
+            className="sl-btn sl-btn--primary"
             disabled={!selectedFile || !selectedProjectId || isUploading}
             type="submit"
           >
@@ -560,9 +560,9 @@ export function FileTable() {
         </div>
 
         {selectedFile ? (
-          <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 lg:col-span-3">
+          <div className="rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-muted lg:col-span-3">
             Selected:{" "}
-            <span className="font-semibold text-slate-900">
+            <span className="font-semibold text-nb-text">
               {selectedFile.name}
             </span>{" "}
             · {formatBytes(selectedFile.size)}
@@ -570,32 +570,32 @@ export function FileTable() {
         ) : null}
 
         {uploadProgress ? (
-          <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 lg:col-span-3">
+          <div className="rounded-lg border border-nb-green bg-nb-green-light px-3 py-2 text-sm font-medium text-nb-green-dark lg:col-span-3">
             {uploadProgress}
           </div>
         ) : null}
       </form>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-nb-amber bg-nb-amber-light px-3 py-2 text-sm text-nb-amber-dark">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
       ) : null}
 
       {selectedProject ? (
-        <div className="mb-4 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500">
+        <div className="mb-4 rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-muted">
           Showing files for{" "}
-          <span className="font-semibold text-slate-800">
+          <span className="font-semibold text-nb-text">
             {selectedProject.name}
           </span>
           .
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-lg border border-slate-200">
+      <div className="overflow-hidden rounded-xl border border-nb-border">
         <table className="w-full min-w-[840px] text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-nb-surface-alt text-xs font-bold uppercase tracking-widest text-nb-muted">
             <tr>
               <th className="px-4 py-3">File</th>
               <th className="px-4 py-3">Project</th>
@@ -606,11 +606,11 @@ export function FileTable() {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-nb-border">
             {isLoading ? (
               <tr>
                 <td
-                  className="px-4 py-10 text-center text-sm text-slate-500"
+                  className="px-4 py-10 text-center text-sm text-nb-muted"
                   colSpan={6}
                 >
                   <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
@@ -622,7 +622,7 @@ export function FileTable() {
             {!isLoading && files.length === 0 ? (
               <tr>
                 <td
-                  className="px-4 py-10 text-center text-sm text-slate-500"
+                  className="px-4 py-10 text-center text-sm text-nb-muted"
                   colSpan={6}
                 >
                   No files uploaded yet.
@@ -639,45 +639,45 @@ export function FileTable() {
                 <tr key={file.id} className="bg-white">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nb-surface-alt text-nb-muted">
                         <Icon className="h-5 w-5" />
                       </div>
 
                       <div className="min-w-0">
                         {isEditing ? (
                           <input
-                            className="h-9 w-full rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-900 outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+                            className="h-9 w-full rounded-lg border border-nb-border px-3 text-sm font-semibold text-nb-text outline-none focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
                             onChange={(event) =>
                               setEditingName(event.target.value)
                             }
                             value={editingName}
                           />
                         ) : (
-                          <p className="truncate font-semibold text-slate-950">
+                          <p className="truncate font-bold text-nb-text">
                             {file.name}
                           </p>
                         )}
 
-                        <p className="truncate text-xs text-slate-500">
+                        <p className="truncate text-xs text-nb-muted">
                           {file.mimeType}
                         </p>
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-nb-muted">
                     {file.project.name}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-nb-muted">
                     {getUploaderName(file)}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-nb-muted">
                     {formatBytes(file.size)}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-600">
+                  <td className="px-4 py-3 text-nb-muted">
                     {formatDate(file.updatedAt)}
                   </td>
 
@@ -686,7 +686,7 @@ export function FileTable() {
                       {isEditing ? (
                         <>
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-emerald-600 hover:bg-emerald-50 disabled:opacity-50"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-green-dark hover:bg-nb-green-light disabled:opacity-50"
                             disabled={isBusy}
                             onClick={() => void renameFile(file.id)}
                             title="Save name"
@@ -700,7 +700,7 @@ export function FileTable() {
                           </button>
 
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt"
                             onClick={cancelEditing}
                             title="Cancel rename"
                             type="button"
@@ -711,7 +711,7 @@ export function FileTable() {
                       ) : (
                         <>
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt disabled:opacity-50"
                             disabled={isBusy}
                             onClick={() => void downloadFile(file.id)}
                             title="Preview"
@@ -725,7 +725,7 @@ export function FileTable() {
                           </button>
 
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt disabled:opacity-50"
                             disabled={isBusy}
                             onClick={() => void downloadFile(file.id)}
                             title="Download"
@@ -735,7 +735,7 @@ export function FileTable() {
                           </button>
 
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt"
                             onClick={() => startEditing(file)}
                             title="Rename"
                             type="button"
@@ -761,7 +761,7 @@ export function FileTable() {
                           </button>
 
                           <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt"
                             title="More file actions"
                             type="button"
                           >

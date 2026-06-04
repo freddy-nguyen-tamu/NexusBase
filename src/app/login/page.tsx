@@ -24,7 +24,7 @@ export default function LoginPage() {
           <GoogleSignInButton />
         </div>
 
-        <div className="hupr-auth__note">
+        <div className="hupr-auth__note text-nb-muted">
           Configure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET,
           and DATABASE_URL before using live authentication.
         </div>

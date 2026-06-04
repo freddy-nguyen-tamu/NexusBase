@@ -8,21 +8,21 @@ type AdminMetric = {
 
 export function AdminSnapshot({ metrics = [] }: { metrics?: AdminMetric[] }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section className="rounded-xl border border-nb-border bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
-        <ShieldCheck className="h-5 w-5 text-[#0f766e]" aria-hidden="true" />
+        <ShieldCheck className="h-5 w-5 text-nb-navy" aria-hidden="true" />
         <div>
-          <h2 className="text-lg font-semibold text-slate-950">Admin Snapshot</h2>
-          <p className="text-sm text-slate-500">User management and system analytics.</p>
+          <h2 className="text-lg font-semibold text-nb-text">Admin Snapshot</h2>
+          <p className="text-sm text-nb-muted">User management and system analytics.</p>
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         {metrics.map((metric) => (
-          <article key={metric.label} className="rounded-lg border border-slate-200 p-3">
-            <p className="text-xs font-semibold uppercase text-slate-500">{metric.label}</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{metric.value}</p>
-            <p className="mt-1 text-xs text-slate-500">{metric.detail}</p>
+          <article key={metric.label} className="rounded-xl border border-nb-navy-border bg-nb-navy/5 p-4">
+            <p className="text-xs font-bold uppercase tracking-widest text-nb-muted">{metric.label}</p>
+            <p className="mt-1 text-2xl font-heading font-black text-nb-navy">{metric.value}</p>
+            <p className="mt-1 text-xs text-nb-muted">{metric.detail}</p>
           </article>
         ))}
       </div>

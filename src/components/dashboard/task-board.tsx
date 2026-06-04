@@ -74,26 +74,26 @@ const columns: Array<{
     id: "todo",
     apiStatus: "TODO",
     label: "Todo",
-    border: "border-l-[#2563eb]",
+    border: "border-l-nb-green",
   },
   {
     id: "inProgress",
     apiStatus: "IN_PROGRESS",
     label: "In Progress",
-    border: "border-l-[#d97706]",
+    border: "border-l-nb-amber",
   },
   {
     id: "done",
     apiStatus: "DONE",
     label: "Done",
-    border: "border-l-[#0f766e]",
+    border: "border-l-nb-navy",
   },
 ];
 
 const priorityStyles: Record<WorkspaceTask["priority"], string> = {
-  Low: "bg-slate-100 text-slate-600",
-  Medium: "bg-blue-50 text-blue-700",
-  High: "bg-amber-50 text-amber-700",
+  Low: "bg-nb-surface-alt text-nb-muted",
+  Medium: "bg-nb-green-light text-nb-green-dark",
+  High: "bg-nb-amber-light text-nb-amber-dark",
   Urgent: "bg-rose-50 text-rose-700",
 };
 
@@ -425,23 +425,20 @@ export function TaskBoard() {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+    <section>
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-slate-950">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-bold tracking-tight text-nb-text">
             Project Kanban
           </h2>
-          <p className="text-sm text-slate-500">
-            Create tasks and drag cards between columns to update status.
-          </p>
-          <p className="mt-1 text-xs font-medium text-emerald-700">
-            Connected to saved workspace tasks.
-          </p>
+          <span className="rounded-full bg-nb-surface-alt px-2.5 py-0.5 text-xs font-semibold text-nb-muted">
+            {items.length} tasks
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
-            className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+            className="sl-btn sl-btn--ghost"
             disabled={isLoadingTasks}
             onClick={() => void loadTasks()}
             type="button"
@@ -453,21 +450,17 @@ export function TaskBoard() {
             )}
             Refresh
           </button>
-
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-            {items.length} tracked tasks
-          </span>
         </div>
       </div>
 
       <form
-        className="mb-4 grid gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 md:grid-cols-[220px_1fr_160px_auto]"
+        className="mb-4 grid gap-2 rounded-xl border border-nb-border bg-nb-surface-alt p-3 md:grid-cols-[220px_1fr_160px_auto]"
         onSubmit={createTask}
       >
         <label className="block">
           <span className="sr-only">Project</span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={isLoadingProjects || isSaving}
             onChange={(event) => setSelectedProjectId(event.target.value)}
             value={selectedProjectId}
@@ -487,7 +480,7 @@ export function TaskBoard() {
         <label className="block">
           <span className="sr-only">Task title</span>
           <input
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition placeholder:text-nb-muted focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={!selectedProjectId || isSaving}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Add a task, e.g. Build project creation flow"
@@ -498,7 +491,7 @@ export function TaskBoard() {
         <label className="block">
           <span className="sr-only">Priority</span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={!selectedProjectId || isSaving}
             onChange={(event) =>
               setPriority(event.target.value as WorkspaceTask["priority"])
@@ -513,7 +506,7 @@ export function TaskBoard() {
         </label>
 
         <button
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#10151f] px-4 text-sm font-semibold text-white hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60"
+          className="sl-btn sl-btn--primary"
           disabled={!selectedProjectId || isSaving || !title.trim()}
           type="submit"
         >
@@ -527,7 +520,7 @@ export function TaskBoard() {
       </form>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-nb-amber bg-nb-amber-light px-3 py-2 text-sm text-nb-amber-dark">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
@@ -537,22 +530,22 @@ export function TaskBoard() {
         {grouped.map((column) => (
           <div
             key={column.id}
-            className="min-h-[360px] rounded-lg border border-slate-200 bg-slate-50 p-3"
+            className="min-h-[360px] rounded-xl border border-nb-border bg-nb-surface-alt p-3"
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => onDrop(event, column.id)}
           >
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-700">
+              <h3 className="text-sm font-bold tracking-tight text-nb-text">
                 {column.label}
               </h3>
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-500">
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-nb-muted">
                 {column.tasks.length}
               </span>
             </div>
 
             <div className="space-y-3">
               {isLoadingTasks ? (
-                <div className="rounded-lg border border-slate-200 bg-white p-4 text-center text-sm text-slate-500">
+                <div className="rounded-xl border border-nb-border bg-white p-4 text-center text-sm text-nb-muted">
                   <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
                   Loading tasks...
                 </div>
@@ -566,7 +559,7 @@ export function TaskBoard() {
                     <article
                       key={task.id}
                       className={cn(
-                        "cursor-grab rounded-lg border border-l-4 border-slate-200 bg-white p-4 shadow-sm active:cursor-grabbing",
+                        "cursor-grab rounded-xl border border-l-4 border-nb-border bg-white p-4 shadow-sm active:cursor-grabbing",
                         column.border,
                         draggingTaskId === task.id && "opacity-60",
                         isBusy && "opacity-70",
@@ -576,7 +569,7 @@ export function TaskBoard() {
                       onDragStart={(event) => onDragStart(event, task.id)}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <h4 className="text-sm font-semibold leading-5 text-slate-950">
+                        <h4 className="text-sm font-bold leading-5 text-nb-text">
                           {task.title}
                         </h4>
                         <div className="flex shrink-0 items-center gap-1">
@@ -594,13 +587,13 @@ export function TaskBoard() {
                             )}
                           </button>
                           <GripVertical
-                            className="h-4 w-4 text-slate-300"
+                            className="h-4 w-4 text-nb-gray-400"
                             aria-hidden="true"
                           />
                         </div>
                       </div>
 
-                      <p className="mt-2 text-sm leading-5 text-slate-500">
+                      <p className="mt-2 text-sm leading-5 text-nb-muted">
                         {task.description}
                       </p>
 
@@ -608,14 +601,14 @@ export function TaskBoard() {
                         {task.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"
+                            className="rounded-full bg-nb-surface-alt px-2 py-1 text-xs font-medium text-nb-muted"
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
 
-                      <div className="mt-4 flex items-center justify-between gap-3 text-xs text-slate-500">
+                      <div className="mt-4 flex items-center justify-between gap-3 text-xs text-nb-muted">
                         <span
                           className={cn(
                             "rounded-full px-2 py-1 font-semibold",
@@ -633,7 +626,7 @@ export function TaskBoard() {
                         </span>
                       </div>
 
-                      <div className="mt-3 text-xs font-medium text-slate-500">
+                      <div className="mt-3 text-xs font-medium text-nb-muted">
                         {task.assignee} / {task.project}
                       </div>
                     </article>
@@ -641,7 +634,7 @@ export function TaskBoard() {
                 })}
 
               {!isLoadingTasks && !column.tasks.length ? (
-                <div className="rounded-lg border border-dashed border-slate-300 bg-white/70 p-4 text-center text-sm text-slate-400">
+                <div className="rounded-xl border border-dashed border-nb-border bg-white/70 p-4 text-center text-sm text-nb-gray-400">
                   Drop tasks here
                 </div>
               ) : null}

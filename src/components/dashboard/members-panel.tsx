@@ -38,10 +38,10 @@ type ProjectMember = {
 };
 
 const roleStyles: Record<MemberRole, string> = {
-  OWNER: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-  ADMIN: "bg-blue-50 text-blue-700 ring-blue-100",
+  OWNER: "bg-nb-green-pale text-nb-green-dark ring-nb-green-pale",
+  ADMIN: "bg-nb-navy/10 text-nb-navy ring-nb-navy/10",
   EDITOR: "bg-amber-50 text-amber-700 ring-amber-100",
-  VIEWER: "bg-slate-100 text-slate-600 ring-slate-200",
+  VIEWER: "bg-nb-surface-alt text-nb-muted ring-nb-border",
 };
 
 const roleDescriptions: Record<MemberRole, string> = {
@@ -359,23 +359,23 @@ export function MembersPanel() {
   }
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm xl:col-span-2">
+    <section className="sl-card p-6">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-[#0f766e]" aria-hidden="true" />
-            <h2 className="text-lg font-semibold text-slate-950">
+            <Users className="h-5 w-5 text-nb-navy" aria-hidden="true" />
+            <h2 className="text-lg font-semibold text-nb-text">
               Sharing & permissions
             </h2>
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-nb-muted">
             Invite existing users to projects and control access with owner,
             admin, editor, and viewer roles.
           </p>
         </div>
 
         <button
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-nb-border px-3 text-xs font-semibold text-nb-muted hover:border-nb-navy-border hover:bg-nb-surface-alt disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isLoadingProjects || isLoadingMembers}
           onClick={() => void loadMembers(selectedProjectId)}
           type="button"
@@ -390,19 +390,19 @@ export function MembersPanel() {
       </div>
 
       {error ? (
-        <div className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <div className="mb-4 flex items-start gap-2 rounded-lg border border-nb-orange/30 bg-orange-50 px-3 py-2 text-sm text-nb-orange">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <p>{error}</p>
         </div>
       ) : null}
 
-      <div className="mb-4 grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[240px_1fr_150px_auto]">
+      <div className="mb-4 grid gap-3 rounded-lg border border-nb-border bg-nb-surface-alt p-3 lg:grid-cols-[240px_1fr_150px_auto]">
         <label className="block">
-          <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
             Project
           </span>
           <select
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+            className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
             disabled={isLoadingProjects || isSaving}
             onChange={(event) => setSelectedProjectId(event.target.value)}
             value={selectedProjectId}
@@ -421,11 +421,11 @@ export function MembersPanel() {
 
         <form className="contents" onSubmit={addMember}>
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
               User email
             </span>
             <input
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+              className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition placeholder:text-nb-muted focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
               disabled={
                 !selectedProjectId ||
                 !canManageMembers(currentUserRole) ||
@@ -439,11 +439,11 @@ export function MembersPanel() {
           </label>
 
           <label className="block">
-            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-nb-muted">
               Role
             </span>
             <select
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15"
+              className="h-10 w-full rounded-lg border border-nb-border bg-white px-3 text-sm text-nb-text outline-none transition focus:border-nb-green focus:ring-2 focus:ring-nb-green/20"
               disabled={
                 !selectedProjectId ||
                 !canManageMembers(currentUserRole) ||
@@ -462,7 +462,7 @@ export function MembersPanel() {
 
           <div className="flex items-end">
             <button
-              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-[#10151f] px-4 text-sm font-semibold text-white hover:bg-[#1f2937] disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
+              className="sl-btn sl-btn--primary"
               disabled={
                 !selectedProjectId ||
                 !email.trim() ||
@@ -487,13 +487,13 @@ export function MembersPanel() {
           {(["OWNER", "ADMIN", "EDITOR", "VIEWER"] as MemberRole[]).map(
             (item) => (
               <div
-                className="rounded-lg border border-slate-200 bg-white p-3"
+                className="rounded-lg border border-nb-border bg-white p-3"
                 key={item}
               >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-bold uppercase tracking-widest text-nb-muted">
                   {item}
                 </p>
-                <p className="mt-1 text-2xl font-bold text-slate-950">
+                <p className="mt-1 text-2xl font-bold text-nb-text">
                   {roleCounts[item]}
                 </p>
               </div>
@@ -505,19 +505,19 @@ export function MembersPanel() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-3">
           {isLoadingMembers ? (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+            <div className="rounded-lg border border-nb-border bg-nb-surface-alt p-6 text-center text-sm text-nb-muted">
               <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
               Loading members...
             </div>
           ) : null}
 
           {!isLoadingMembers && members.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-              <Users className="mx-auto mb-3 h-8 w-8 text-slate-300" />
-              <h3 className="text-sm font-semibold text-slate-800">
+            <div className="rounded-lg border border-dashed border-nb-border bg-nb-surface-alt p-6 text-center">
+              <Users className="mx-auto mb-3 h-8 w-8 text-nb-gray-400" />
+              <h3 className="text-sm font-semibold text-nb-text">
                 No members found
               </h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-nb-muted">
                 Select a project or create one before managing access.
               </p>
             </div>
@@ -532,24 +532,24 @@ export function MembersPanel() {
 
             return (
               <article
-                className="rounded-lg border border-slate-200 bg-white p-4"
+                className="rounded-xl border border-nb-border bg-white p-4"
                 key={member.id}
               >
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-slate-100 text-sm font-bold text-slate-700">
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-nb-surface-alt text-sm font-bold text-nb-text">
                       {member.role === "OWNER" ? (
-                        <Crown className="h-5 w-5 text-emerald-600" />
+                        <Crown className="h-5 w-5 text-nb-green-dark" />
                       ) : (
                         getInitials(member)
                       )}
                     </div>
 
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-950">
+                      <p className="truncate text-sm font-semibold text-nb-text">
                         {getDisplayName(member)}
                       </p>
-                      <p className="truncate text-xs text-slate-500">
+                      <p className="truncate text-xs text-nb-muted">
                         {member.user.email ?? "No email"}
                       </p>
                     </div>
@@ -566,14 +566,14 @@ export function MembersPanel() {
                     </span>
 
                     {member.role === "OWNER" ? (
-                      <span className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-500">
+                      <span className="inline-flex h-9 items-center gap-2 rounded-lg border border-nb-border px-3 text-xs font-semibold text-nb-muted">
                         <ShieldCheck className="h-3.5 w-3.5" />
                         Protected
                       </span>
                     ) : (
                       <>
                         <select
-                          className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 outline-none focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/15 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="h-9 rounded-lg border border-nb-border bg-white px-2 text-xs font-semibold text-nb-text outline-none focus:border-nb-green focus:ring-2 focus:ring-nb-green/20 disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={!canEditThisMember || isBusy}
                           onChange={(event) =>
                             void updateRole(
@@ -609,7 +609,7 @@ export function MembersPanel() {
                   </div>
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">
+                <p className="mt-3 text-sm text-nb-muted">
                   {roleDescriptions[member.role]}
                 </p>
               </article>
@@ -617,39 +617,39 @@ export function MembersPanel() {
           })}
         </div>
 
-        <aside className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <aside className="rounded-xl border border-nb-border bg-nb-surface-alt p-4">
           <div className="flex items-center gap-2">
-            <UserCog className="h-5 w-5 text-[#2563eb]" />
-            <h3 className="text-sm font-semibold text-slate-950">
+            <UserCog className="h-5 w-5 text-nb-navy" />
+            <h3 className="text-sm font-semibold text-nb-text">
               Permission rules
             </h3>
           </div>
 
-          <div className="mt-4 space-y-3 text-sm text-slate-600">
-            <div className="rounded-lg border border-slate-200 bg-white p-3">
-              <p className="font-semibold text-slate-900">Owner</p>
+          <div className="mt-4 space-y-3 text-sm text-nb-muted">
+            <div className="rounded-xl border border-nb-border bg-white p-3">
+              <p className="font-semibold text-nb-text">Owner</p>
               <p className="mt-1 text-xs leading-5">
                 Full control. Cannot be removed here to prevent orphaned
                 projects.
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-3">
-              <p className="font-semibold text-slate-900">Admin</p>
+            <div className="rounded-xl border border-nb-border bg-white p-3">
+              <p className="font-semibold text-nb-text">Admin</p>
               <p className="mt-1 text-xs leading-5">
                 Can manage members and workspace records, except owners.
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-3">
-              <p className="font-semibold text-slate-900">Editor</p>
+            <div className="rounded-xl border border-nb-border bg-white p-3">
+              <p className="font-semibold text-nb-text">Editor</p>
               <p className="mt-1 text-xs leading-5">
                 Can create and update tasks, comments, and files.
               </p>
             </div>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-3">
-              <p className="font-semibold text-slate-900">Viewer</p>
+            <div className="rounded-xl border border-nb-border bg-white p-3">
+              <p className="font-semibold text-nb-text">Viewer</p>
               <p className="mt-1 text-xs leading-5">
                 Can view project content without changing records.
               </p>
@@ -657,13 +657,13 @@ export function MembersPanel() {
           </div>
 
           {selectedProject ? (
-            <p className="mt-4 rounded-lg bg-white px-3 py-2 text-xs text-slate-500">
+            <p className="mt-4 rounded-lg bg-white px-3 py-2 text-xs text-nb-muted">
               Current project:{" "}
-              <span className="font-semibold text-slate-800">
+              <span className="font-semibold text-nb-text">
                 {selectedProject.name}
               </span>
               . Your role:{" "}
-              <span className="font-semibold text-slate-800">
+              <span className="font-semibold text-nb-text">
                 {currentUserRole ?? "Unknown"}
               </span>
               .
