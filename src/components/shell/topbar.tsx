@@ -1,7 +1,13 @@
-import { Bell, LogIn, Search, ShieldCheck } from "lucide-react";
+"use client";
+
+import { Bell, LayoutDashboard, LogIn, LogOut, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 
 export function Topbar() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN";
+
   return (
     <header className="sticky top-0 z-50 flex items-center justify-between px-6 h-16 bg-white border-b border-nb-border">
       <div>
@@ -28,20 +34,43 @@ export function Topbar() {
           >
             <Bell className="h-4 w-4" aria-hidden="true" />
           </a>
-          <Link
-            className="grid h-10 w-10 place-items-center rounded-lg border border-nb-border text-nb-muted hover:border-nb-green hover:text-nb-green"
-            href="/admin"
-            title="Admin panel"
-          >
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-          </Link>
-          <Link
-            className="inline-flex h-10 items-center gap-2 rounded-lg bg-nb-navy px-4 text-sm font-semibold text-white hover:bg-nb-navy-mid"
-            href="/login"
-          >
-            <LogIn className="h-4 w-4" aria-hidden="true" />
-            Sign in
-          </Link>
+
+          {isAdmin && (
+            <Link
+              className="grid h-10 w-10 place-items-center rounded-lg border border-nb-border text-nb-muted hover:border-nb-green hover:text-nb-green"
+              href="/admin"
+              title="Admin panel"
+            >
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          )}
+
+          {session ? (
+            <>
+              <Link
+                className="grid h-10 w-10 place-items-center rounded-lg border border-nb-border text-nb-muted hover:border-nb-green hover:text-nb-green"
+                href="/dashboard"
+                title="Dashboard"
+              >
+                <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              </Link>
+              <button
+                className="inline-flex h-10 items-center gap-2 rounded-lg bg-nb-navy px-4 text-sm font-semibold text-white hover:bg-nb-navy-mid"
+                onClick={() => signOut({ callbackUrl: "/" })}
+              >
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-nb-navy px-4 text-sm font-semibold text-white hover:bg-nb-navy-mid"
+              href="/login"
+            >
+              <LogIn className="h-4 w-4" aria-hidden="true" />
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>

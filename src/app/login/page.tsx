@@ -1,8 +1,16 @@
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
+import { authOptions } from "@/lib/auth";
 import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await getServerSession(authOptions);
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="hupr-auth">
       <Link className="hupr-auth__back" href="/">

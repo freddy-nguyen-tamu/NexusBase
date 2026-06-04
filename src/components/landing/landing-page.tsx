@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import {
   Activity,
@@ -119,12 +121,16 @@ const FOOTER_FEATURES = [
 
 function NavBar() {
   const [scrolled, setScrolled] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const ctaHref = session ? "/dashboard" : "/login";
+  const ctaLabel = session ? "Go to Dashboard" : "Sign In";
 
   return (
     <nav
@@ -208,8 +214,8 @@ function NavBar() {
       </ul>
 
       {/* CTA */}
-      <a
-        href="/login"
+      <Link
+        href={ctaHref}
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -225,8 +231,8 @@ function NavBar() {
           letterSpacing: "0.02em",
         }}
       >
-        Sign In <ArrowRight size={13} />
-      </a>
+        {ctaLabel} <ArrowRight size={13} />
+      </Link>
     </nav>
   );
 }

@@ -1,20 +1,31 @@
-"use client"
+"use client";
 
-import { usePathname } from "next/navigation"
+import { signOut, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 const navItems = [
-  { label: "Overview", href: "/dashboard" },
-  { label: "Projects", href: "/dashboard/projects" },
-  { label: "Tasks", href: "/dashboard/tasks" },
-  { label: "Messages", href: "/dashboard/messages" },
-  { label: "Files", href: "/dashboard/files" },
-  { label: "Analytics", href: "/dashboard/analytics" },
+  { label: "Overview",      href: "/dashboard" },
+  { label: "Projects",      href: "/dashboard/projects" },
+  { label: "Tasks",         href: "/dashboard/tasks" },
+  { label: "Messages",      href: "/dashboard/messages" },
+  { label: "Files",         href: "/dashboard/files" },
+  { label: "Analytics",     href: "/dashboard/analytics" },
   { label: "Notifications", href: "/dashboard/notifications" },
-  { label: "Settings", href: "/dashboard/settings" },
-]
+  { label: "Settings",      href: "/dashboard/settings" },
+];
 
 export default function Sidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const user = session?.user;
+  const displayName = user?.name ?? user?.email ?? "User";
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p: string) => p.charAt(0).toUpperCase())
+    .join("");
 
   return (
     <aside className="w-72 h-screen sticky top-0 bg-nb-navy text-nb-on-dark flex flex-col shrink-0">
@@ -23,12 +34,16 @@ export default function Sidebar() {
           NexusBase
         </span>
       </div>
+
       <div className="px-3 pt-4 pb-2">
-        <p className="text-nb-navy-light text-xs font-bold uppercase tracking-widest px-3">Main Menu</p>
+        <p className="text-nb-navy-light text-xs font-bold uppercase tracking-widest px-3">
+          Main Menu
+        </p>
       </div>
+
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
-          const active = pathname === item.href
+          const active = pathname === item.href;
           return (
             <a
               key={item.href}
@@ -41,17 +56,37 @@ export default function Sidebar() {
             >
               {item.label}
             </a>
-          )
+          );
         })}
       </nav>
-      <div className="p-3 border-t border-white/10">
+
+      <div className="p-3 border-t border-white/10 space-y-1">
         <div className="flex items-center gap-3 px-3 py-2.5 text-sm text-nb-navy-border">
-          <div className="h-8 w-8 rounded-full bg-nb-surface-alt border border-nb-border flex items-center justify-center text-xs font-semibold text-nb-text">
-            A
-          </div>
-          <span className="font-medium text-nb-on-dark">Alex</span>
+          {user?.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.image}
+              alt={displayName}
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-8 w-8 rounded-full bg-nb-surface-alt border border-nb-border flex items-center justify-center text-xs font-semibold text-nb-text">
+              {initials}
+            </div>
+          )}
+          <span className="font-medium text-nb-on-dark truncate flex-1">
+            {displayName}
+          </span>
         </div>
+
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-nb-navy-border hover:text-white hover:bg-white/10 transition-all duration-200"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Sign out
+        </button>
       </div>
     </aside>
-  )
+  );
 }
