@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Activity,
   Bell,
@@ -10,11 +10,11 @@ import {
   LayoutGrid,
   Search,
   Shield,
-  Github,
+  Code,
   ArrowRight,
-  Twitter,
-  Instagram,
-  Figma,
+  Globe,
+  Camera,
+  Pen,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
@@ -341,7 +341,7 @@ function HeroSection() {
               border: "1px solid var(--nb-border-solid)",
             }}
           >
-            <Github size={15} /> View Source
+            <Code size={15} /> View Source
           </a>
         </div>
       </div>
@@ -1024,10 +1024,10 @@ function FounderSection() {
 // ──────────────────────────────
 function Footer() {
   const socialLinks = [
-    { icon: Twitter,   label: "TWITTER" },
-    { icon: Instagram, label: "INSTAGRAM" },
-    { icon: Github,    label: "GITHUB" },
-    { icon: Figma,     label: "FIGMA" },
+    { icon: Globe,  label: "TWITTER" },
+    { icon: Camera, label: "INSTAGRAM" },
+    { icon: Code,   label: "GITHUB" },
+    { icon: Pen,    label: "FIGMA" },
   ];
 
   return (
