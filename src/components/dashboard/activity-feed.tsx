@@ -4,6 +4,8 @@ import {
   Activity,
   AlertCircle,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   FileText,
   FolderKanban,
   Loader2,
@@ -216,6 +218,8 @@ function getContextParts(item: ActivityLog) {
   ].filter(Boolean);
 }
 
+const PER_PAGE = 3;
+
 export function ActivityFeed() {
   const [activity, setActivity] = useState<ActivityLog[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -225,6 +229,7 @@ export function ActivityFeed() {
   const [limit, setLimit] = useState("50");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
 
   const filteredActivity = useMemo(() => {
     const trimmedQuery = query.trim().toLowerCase();
@@ -315,6 +320,17 @@ export function ActivityFeed() {
       setIsLoading(false);
     }
   }
+
+  const totalPages = Math.max(1, Math.ceil(filteredActivity.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages - 1);
+  const paginatedActivity = useMemo(
+    () => filteredActivity.slice(safePage * PER_PAGE, safePage * PER_PAGE + PER_PAGE),
+    [filteredActivity, safePage],
+  );
+
+  useEffect(() => {
+    setPage(0);
+  }, [filteredActivity.length]);
 
   useEffect(() => {
     void loadActivity();
@@ -455,7 +471,7 @@ export function ActivityFeed() {
 
         {!isLoading && filteredActivity.length > 0 ? (
           <div className="divide-y divide-nb-border">
-            {filteredActivity.map((item) => {
+            {paginatedActivity.map((item) => {
               const Icon = getActivityIcon(item);
               const contextParts = getContextParts(item);
 
@@ -526,6 +542,41 @@ export function ActivityFeed() {
                 </article>
               );
             })}
+          </div>
+        ) : null}
+
+        {totalPages > 1 ? (
+          <div className="flex items-center justify-center gap-1 border-t border-nb-border px-4 py-3">
+            <button
+              className="grid h-8 w-8 place-items-center rounded-md text-nb-muted hover:bg-nb-surface-alt disabled:opacity-30 disabled:pointer-events-none"
+              disabled={safePage === 0}
+              onClick={() => setPage(safePage - 1)}
+              type="button"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                className={`grid h-8 w-8 place-items-center rounded-md text-sm font-medium transition-colors ${
+                  i === safePage
+                    ? "bg-nb-green text-white"
+                    : "text-nb-muted hover:bg-nb-surface-alt"
+                }`}
+                onClick={() => setPage(i)}
+                type="button"
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className="grid h-8 w-8 place-items-center rounded-md text-nb-muted hover:bg-nb-surface-alt disabled:opacity-30 disabled:pointer-events-none"
+              disabled={safePage === totalPages - 1}
+              onClick={() => setPage(safePage + 1)}
+              type="button"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         ) : null}
       </div>
