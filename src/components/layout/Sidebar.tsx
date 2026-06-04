@@ -2,12 +2,13 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { Flag, LogOut } from "lucide-react";
 
 const navItems = [
   { label: "Overview",      href: "/dashboard" },
   { label: "Projects",      href: "/dashboard/projects" },
   { label: "Tasks",         href: "/dashboard/tasks" },
+  { label: "Roadmap",       href: "/dashboard/roadmap" },
   { label: "Messages",      href: "/dashboard/messages" },
   { label: "Files",         href: "/dashboard/files" },
   { label: "Analytics",     href: "/dashboard/analytics" },

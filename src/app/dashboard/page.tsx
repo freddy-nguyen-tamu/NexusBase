@@ -2,6 +2,7 @@ import DashboardShell from "@/components/layout/DashboardShell"
 import StatsCards from "@/components/dashboard/StatsCards"
 import { ProjectManager } from "@/components/dashboard/project-manager"
 import { TaskBoard } from "@/components/dashboard/task-board"
+import { RoadmapPanel } from "@/components/dashboard/roadmap-panel"
 import { FileTable } from "@/components/dashboard/file-table"
 import { TeamChat } from "@/components/dashboard/team-chat"
 import { ActivityFeed } from "@/components/dashboard/activity-feed"
@@ -31,6 +32,17 @@ export default function DashboardPage() {
           </h2>
           <div className="mt-4">
             <TaskBoard />
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <div className="sl-card">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
+            Roadmap & Decisions
+          </h2>
+          <div className="mt-4">
+            <RoadmapPanel />
           </div>
         </div>
       </section>

@@ -11,6 +11,7 @@ const createTaskSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
   description: z.string().optional(),
   assigneeId: z.string().optional(),
+  milestoneId: z.string().optional().nullable(),
   status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).default("TODO"),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).default("MEDIUM"),
   dueDate: z.string().datetime().optional(),
@@ -22,6 +23,7 @@ const updateTaskSchema = z.object({
   title: z.string().min(2).optional(),
   description: z.string().optional(),
   assigneeId: z.string().nullable().optional(),
+  milestoneId: z.string().optional().nullable(),
   status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
   dueDate: z.string().datetime().nullable().optional(),
@@ -127,6 +129,13 @@ export async function GET(request: Request) {
           email: true,
         },
       },
+      milestone: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
+        },
+      },
       project: {
         select: {
           id: true,
@@ -167,6 +176,7 @@ export async function POST(request: Request) {
       projectId: payload.projectId,
       creatorId: userId,
       assigneeId: payload.assigneeId || undefined,
+      milestoneId: payload.milestoneId || null,
       title: payload.title,
       description: payload.description,
       status: payload.status,
@@ -189,6 +199,13 @@ export async function POST(request: Request) {
           name: true,
           image: true,
           email: true,
+        },
+      },
+      milestone: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
         },
       },
       project: {
@@ -251,6 +268,7 @@ export async function PATCH(request: Request) {
       ...(payload.assigneeId !== undefined
         ? { assigneeId: payload.assigneeId }
         : {}),
+      ...(payload.milestoneId === undefined ? undefined : { milestoneId: payload.milestoneId || null }),
       ...(payload.status !== undefined ? { status: payload.status } : {}),
       ...(payload.priority !== undefined ? { priority: payload.priority } : {}),
       ...(payload.dueDate !== undefined
@@ -273,6 +291,13 @@ export async function PATCH(request: Request) {
           name: true,
           image: true,
           email: true,
+        },
+      },
+      milestone: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
         },
       },
       project: {
