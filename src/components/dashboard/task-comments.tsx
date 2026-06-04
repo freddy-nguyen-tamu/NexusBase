@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type ApiTaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 type ApiTaskPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
@@ -229,6 +230,7 @@ export function TaskComments() {
 
       setComments((current) => [...current, data.comment]);
       setBody("");
+      emit("activity");
     } catch (createError) {
       setError(
         createError instanceof Error
@@ -290,6 +292,7 @@ export function TaskComments() {
       );
 
       cancelEditing();
+      emit("activity");
     } catch (updateError) {
       setError(
         updateError instanceof Error
@@ -331,6 +334,7 @@ export function TaskComments() {
       setComments((current) =>
         current.filter((comment) => comment.id !== commentId),
       );
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error

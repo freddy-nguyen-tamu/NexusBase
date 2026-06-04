@@ -21,6 +21,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type Project = {
   id: string;
@@ -288,6 +289,7 @@ export function TeamChat() {
 
       setMessages((current) => [...current, data.message]);
       setBody("");
+      emit("activity");
     } catch (sendError) {
       setError(
         sendError instanceof Error
@@ -349,6 +351,7 @@ export function TeamChat() {
       );
 
       cancelEditing();
+      emit("activity");
     } catch (updateError) {
       setError(
         updateError instanceof Error
@@ -392,6 +395,7 @@ export function TeamChat() {
       setMessages((current) =>
         current.filter((item) => item.id !== message.id),
       );
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error

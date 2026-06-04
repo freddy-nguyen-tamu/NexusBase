@@ -18,6 +18,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type NotificationType =
   | "TASK_ASSIGNED"
@@ -212,6 +213,7 @@ export function NotificationsPanel() {
         ),
       );
       setUnreadCount(data.unreadCount);
+      emit("activity");
     } catch (updateError) {
       setError(
         updateError instanceof Error
@@ -260,6 +262,7 @@ export function NotificationsPanel() {
         current.filter((notification) => notification.id !== notificationId),
       );
       setUnreadCount(data.unreadCount);
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error
@@ -298,6 +301,7 @@ export function NotificationsPanel() {
 
       setNotifications(data.notifications);
       setUnreadCount(data.unreadCount);
+      emit("activity");
     } catch (markError) {
       setError(
         markError instanceof Error

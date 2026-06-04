@@ -17,6 +17,7 @@ import {
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type ProjectMember = {
   id: string;
@@ -175,6 +176,7 @@ export function ProjectManager() {
       setSelectedProjectId(data.project.id);
       setName("");
       setDescription("");
+      emit("activity");
     } catch (createError) {
       setError(
         createError instanceof Error
@@ -239,6 +241,7 @@ export function ProjectManager() {
       );
 
       cancelEditing();
+      emit("activity");
     } catch (updateError) {
       setError(
         updateError instanceof Error
@@ -291,6 +294,7 @@ export function ProjectManager() {
         const nextProject = projects.find((item) => item.id !== projectId);
         setSelectedProjectId(nextProject?.id ?? null);
       }
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error

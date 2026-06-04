@@ -21,6 +21,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type UserRole = "USER" | "ADMIN";
 
@@ -398,6 +399,7 @@ export function AdminConsole() {
           ),
         };
       });
+      emit("activity");
     } catch (updateError) {
       setError(
         updateError instanceof Error
@@ -455,6 +457,7 @@ export function AdminConsole() {
           },
         };
       });
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error

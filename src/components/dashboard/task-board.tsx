@@ -19,6 +19,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type WorkspaceTaskStatus = "todo" | "inProgress" | "done";
 
@@ -284,6 +285,7 @@ export function TaskBoard() {
     }
 
     const data = (await response.json()) as { task: ApiTask };
+    emit("activity");
     return mapApiTask(data.task);
   }
 
@@ -375,6 +377,7 @@ export function TaskBoard() {
       setItems((current) => [mapApiTask(data.task), ...current]);
       setTitle("");
       router.refresh();
+      emit("activity");
     } catch (createError) {
       setError(
         createError instanceof Error
@@ -413,6 +416,7 @@ export function TaskBoard() {
 
       setItems((current) => current.filter((item) => item.id !== task.id));
       router.refresh();
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error

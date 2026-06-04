@@ -16,9 +16,10 @@ import {
   ShieldCheck,
   UserPlus,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { on } from "@/lib/events";
 
 type ActivityType =
   | "all"
@@ -335,6 +336,14 @@ export function ActivityFeed() {
   useEffect(() => {
     void loadActivity();
   }, [projectId, type, limit]);
+
+  const loadActivityRef = useRef(loadActivity);
+  loadActivityRef.current = loadActivity;
+
+  useEffect(() => {
+    const unsub = on("activity", () => void loadActivityRef.current());
+    return unsub;
+  }, []);
 
   return (
     <section className="rounded-xl border border-nb-border bg-white p-4 shadow-sm">

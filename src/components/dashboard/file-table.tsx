@@ -28,6 +28,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type Project = {
   id: string;
@@ -357,6 +358,7 @@ export function FileTable() {
 
       const data = await res.json();
       setFiles((current) => [data.file, ...current]);
+      emit("activity");
       setSelectedFile(null);
       setUploadProgress("");
 
@@ -456,6 +458,7 @@ export function FileTable() {
       setFiles((current) =>
         current.map((file) => (file.id === fileId ? data.file : file)),
       );
+      emit("activity");
 
       cancelEditing();
     } catch (renameError) {
@@ -503,6 +506,7 @@ export function FileTable() {
       }
 
       setFiles((current) => current.filter((item) => item.id !== fileId));
+      emit("activity");
     } catch (deleteError) {
       setError(
         deleteError instanceof Error

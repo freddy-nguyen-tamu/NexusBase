@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 import { cn } from "@/lib/utils";
+import { emit } from "@/lib/events";
 
 type Project = {
   id: string;
@@ -259,6 +260,7 @@ export function MembersPanel() {
       setMembers((current) => [...current, data.member]);
       setEmail("");
       setRole("VIEWER");
+      emit("activity");
     } catch (addError) {
       setError(
         addError instanceof Error
@@ -304,6 +306,7 @@ export function MembersPanel() {
           member.id === membershipId ? data.member : member,
         ),
       );
+      emit("activity");
     } catch (updateError) {
       setError(
         updateError instanceof Error
@@ -347,6 +350,7 @@ export function MembersPanel() {
       }
 
       setMembers((current) => current.filter((item) => item.id !== member.id));
+      emit("activity");
     } catch (removeError) {
       setError(
         removeError instanceof Error
