@@ -8,7 +8,6 @@ import {
   Bell,
   Bookmark,
   Cloud,
-  Download,
   LayoutGrid,
   Search,
   Shield,
@@ -25,6 +24,7 @@ import {
 type Feature = {
   icon: React.ElementType;
   label: string;
+  description: string;
 };
 
 type IconSetCard = {
@@ -39,14 +39,14 @@ type IconSetCard = {
 // Data
 // ─────────────────────────────────────────────────────────────
 const FEATURES: Feature[] = [
-  { icon: LayoutGrid, label: "Drag-and-drop task boards" },
-  { icon: Cloud,      label: "S3 cloud file storage" },
-  { icon: Shield,     label: "Team roles & permissions" },
-  { icon: Search,     label: "Global search" },
-  { icon: Bell,       label: "Custom notifications" },
-  { icon: Download,   label: "Download files instantly" },
-  { icon: Activity,   label: "Audit activity logs" },
-  { icon: Bookmark,   label: "Save & share projects" },
+  { icon: Shield,     label: "Authentication & access", description: "Google OAuth, protected dashboard routes, account sessions, project roles, and admin-only controls." },
+  { icon: LayoutGrid, label: "Project execution",       description: "Projects, task workflows, kanban-style task movement, comments, members, workload summaries, and activity history." },
+  { icon: Cloud,      label: "File operations",         description: "S3-oriented file metadata, sharing states, protected presigned upload patterns, and workspace-scoped storage architecture." },
+  { icon: Bell,       label: "Team communication",      description: "Channels, messages, notifications, read states, and team activity context." },
+  { icon: Search,     label: "Universal search",        description: "Ctrl/Cmd+K command palette and search across projects, tasks, files, milestones, decisions, and messages." },
+  { icon: Activity,   label: "Project health",          description: "Risk severity, blocker ownership, mitigation plans, due dates, health signals, and activity-linked risk tracking." },
+  { icon: Bookmark,   label: "Admin analytics",         description: "Admin dashboard snapshots for workspace visibility, usage context, and operational oversight." },
+  { icon: Code,       label: "Production architecture", description: "Prisma schema, protected API routes, middleware-based access control, PostgreSQL models, and Vercel-ready deployment." },
 ];
 
 const ICON_SETS: IconSetCard[] = [
@@ -296,9 +296,10 @@ function HeroSection() {
             marginBottom: "2.5rem",
           }}
         >
-          Stop wasting time juggling five apps. NexusBase gives you tasks,
-          files, team chat, notifications, and audit logs — wired together and
-          production-ready from day one.
+          Stop wasting time juggling five apps. NexusBase gives you projects,
+          tasks, files, team chat, notifications, audit logs, milestones,
+          decisions, universal search, and project health tracking — wired
+          together in one protected workspace.
         </p>
 
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
@@ -318,7 +319,7 @@ function HeroSection() {
               textDecoration: "none",
             }}
           >
-            Start Now <ArrowRight size={15} />
+            Open workspace <ArrowRight size={15} />
           </a>
           <a
             href="https://github.com"
@@ -337,7 +338,7 @@ function HeroSection() {
               border: "1px solid var(--nb-border-solid)",
             }}
           >
-            <Code size={15} /> View Source
+            <Code size={15} /> View architecture
           </a>
         </div>
       </div>
@@ -492,9 +493,9 @@ function ConsistentSetsSection() {
             marginBottom: "1.5rem",
           }}
         >
-          Consistent,
+          Designed like a real
           <br />
-          connected tools.
+          SaaS workspace.
         </h2>
 
         <p
@@ -502,12 +503,14 @@ function ConsistentSetsSection() {
             fontSize: "1.05rem",
             lineHeight: 1.65,
             color: "var(--nb-muted)",
-            maxWidth: 440,
+            maxWidth: 480,
           }}
         >
-          From Kanban to cloud files, every module shares the same permission
-          model, activity log, and notification system. Build once, operate
-          everywhere.
+          NexusBase was built to demonstrate the engineering depth expected in a
+          production team platform: authenticated sessions, protected API routes,
+          relational project data, role-based access, S3-oriented file workflows,
+          notifications, activity logs, admin-only views, command search, and
+          project health monitoring.
         </p>
 
         <p
@@ -515,12 +518,14 @@ function ConsistentSetsSection() {
             fontSize: "1.05rem",
             lineHeight: 1.65,
             color: "var(--nb-muted)",
-            maxWidth: 440,
+            maxWidth: 480,
             marginTop: "1rem",
           }}
         >
-          From individual tasks to org-wide audit trails — NexusBase covers
-          every use case imaginable without charging per seat per feature.
+          Rather than being a static dashboard mockup, the app models the core
+          systems behind a collaborative workspace: users, profiles, projects,
+          members, tasks, comments, files, shares, channels, messages,
+          milestones, decisions, risks, and audit events.
         </p>
       </div>
     </section>
@@ -590,7 +595,7 @@ function DesignBandSection() {
           >
             Unparalleled
             <br />
-            Cohesiveness
+            Architecture depth
           </h3>
           <p
             style={{
@@ -599,9 +604,11 @@ function DesignBandSection() {
               color: "rgba(255,255,255,0.55)",
             }}
           >
-            Every route is protected. Every action is logged. Roles propagate
-            from project membership down to file-share permissions. The schema
-            is designed so nothing is orphaned.
+            Every route is protected by middleware. Every action is logged to
+            the activity trail. Roles propagate from project membership down to
+            file-share permissions. The Prisma schema enforces referential
+            integrity so no record is orphaned. OAuth sessions, audit events,
+            notifications, and search all share a single PostgreSQL database.
           </p>
         </div>
         <div
@@ -611,7 +618,7 @@ function DesignBandSection() {
             gap: "1rem",
           }}
         >
-          {["Prisma schema", "Google OAuth", "AWS S3 presign", "Protected APIs"].map((label) => (
+          {["Prisma schema", "Google OAuth", "AWS S3 presign", "Protected APIs", "Command palette", "Risk tracking"].map((label) => (
             <div
               key={label}
               style={{
@@ -687,9 +694,9 @@ function FeaturesSection() {
           marginBottom: "3.5rem",
         }}
       >
-        <span style={{ color: "var(--nb-green)" }}>We&apos;ve built real features,</span>
+        <span style={{ color: "var(--nb-green)" }}>Production-grade features,</span>
         <br />
-        so you can work faster.
+        built with real engineering depth.
       </h2>
 
       {/* 4-column × 2-row grid */}
@@ -700,7 +707,7 @@ function FeaturesSection() {
           border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
-        {FEATURES.map(({ icon: Icon, label }, i) => (
+        {FEATURES.map(({ icon: Icon, label, description }, i) => (
           <div
             key={label}
             style={{
@@ -727,12 +734,22 @@ function FeaturesSection() {
             />
             <p
               style={{
-                fontSize: "0.875rem",
-                lineHeight: 1.45,
-                color: "rgba(255,255,255,0.75)",
+                fontSize: "0.9rem",
+                fontWeight: 700,
+                color: "#fff",
+                marginBottom: "0.25rem",
               }}
             >
               {label}
+            </p>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                lineHeight: 1.5,
+                color: "rgba(255,255,255,0.5)",
+              }}
+            >
+              {description}
             </p>
           </div>
         ))}
@@ -914,9 +931,11 @@ function FounderSection() {
             marginBottom: "1.5rem",
           }}
         >
-          Built as a solo
+          A portfolio-grade SaaS platform
           <br />
-          full-stack project...
+          demonstrating production
+          <br />
+          full-stack architecture.
         </h2>
         <p
           style={{
@@ -926,10 +945,13 @@ function FounderSection() {
             maxWidth: 520,
           }}
         >
-          NexusBase started as a resume-depth engineering project. It
-          demonstrates authentication, project workflows, cloud file storage,
-          role-based permissions, notifications, audit logs, admin analytics, and a
-          polished responsive dashboard — all in a single Next.js monorepo.
+          NexusBase is intentionally built beyond a simple CRUD dashboard. The
+          project shows how separate product systems work together inside a
+          realistic SaaS app: authentication protects the workspace, project
+          membership controls access, tasks and files create operational data,
+          messages and notifications support collaboration, audit logs preserve
+          activity history, search helps users move quickly, and project health
+          tracking adds delivery-risk visibility.
         </p>
         <p
           style={{
@@ -940,8 +962,49 @@ function FounderSection() {
             marginTop: "1rem",
           }}
         >
-          The stack: Next.js 16 · React 19 · TypeScript · Tailwind · Auth.js ·
-          Prisma · PostgreSQL · AWS S3.
+          The result is a compact but complete workspace platform that
+          demonstrates both frontend polish and backend architecture.
+        </p>
+        <div
+          style={{
+            marginTop: "1.5rem",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+          }}
+        >
+          {["12+ relational models", "OAuth-protected routes", "S3 upload architecture", "Command palette search", "Risk tracking workflow", "Admin analytics"].map((stat) => (
+            <span
+              key={stat}
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "var(--nb-navy)",
+                background: "var(--nb-surface-alt)",
+                padding: "0.4rem 0.75rem",
+                borderRadius: 6,
+                border: "1px solid var(--nb-border-solid)",
+              }}
+            >
+              {stat}
+            </span>
+          ))}
+        </div>
+        <p
+          style={{
+            fontSize: "1rem",
+            lineHeight: 1.7,
+            color: "var(--nb-muted)",
+            maxWidth: 520,
+            marginTop: "1.5rem",
+            paddingTop: "1.5rem",
+            borderTop: "1px solid var(--nb-border-solid)",
+          }}
+        >
+          The stack: Next.js 16 · React 19 · TypeScript · Tailwind CSS · Auth.js ·
+          Prisma · PostgreSQL · AWS S3 · Vercel
         </p>
       </div>
     </section>
