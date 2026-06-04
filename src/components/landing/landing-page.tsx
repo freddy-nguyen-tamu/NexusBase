@@ -493,10 +493,7 @@ function ConsistentSetsSection() {
             marginBottom: "1.5rem",
           }}
         >
-          All the
-          <br />
-          Tech
-          <br />
+          All the Tech
         </h2>
 
         <p
