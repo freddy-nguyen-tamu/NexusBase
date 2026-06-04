@@ -891,16 +891,12 @@ function FounderSection() {
           style={{
             width: "100%",
             aspectRatio: "1",
-            background: "var(--nb-surface-alt)",
+            backgroundImage: "url(/assets/background.avif)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
             borderRadius: 16,
-            display: "grid",
-            placeItems: "center",
-            fontSize: "4rem",
-            color: "var(--nb-navy)",
           }}
-        >
-          👤
-        </div>
+        />
       </div>
 
       {/* Right: text */}

@@ -1,3 +1,5 @@
+import { ShieldAlert } from "lucide-react";
+import Link from "next/link";
 import DashboardShell from "@/components/layout/DashboardShell"
 import StatsCards from "@/components/dashboard/StatsCards"
 import { ProjectManager } from "@/components/dashboard/project-manager"
@@ -34,6 +36,23 @@ export default function DashboardPage() {
             <TaskBoard />
           </div>
         </div>
+      </section>
+
+      <section className="mt-6">
+        <Link
+          href="/dashboard/health"
+          className="block rounded-2xl border border-nb-border bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-nb-navy/30 hover:bg-nb-surface-alt hover:shadow-md"
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+              Project Health
+            </h2>
+            <ShieldAlert className="h-5 w-5 text-nb-muted" aria-hidden="true" />
+          </div>
+          <p className="mt-2 text-sm text-nb-muted">
+            Track risks, blockers, severity, owners, and mitigation plans across workspaces.
+          </p>
+        </Link>
       </section>
 
       <section className="mt-6">

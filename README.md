@@ -28,8 +28,9 @@ It demonstrates authentication, project/task workflows, cloud file storage, role
 - Activity log for audit-style events
 - Admin analytics snapshot
 - Universal workspace search and Ctrl/Cmd+K command palette across projects, tasks, files, milestones, decisions, and messages
+- Project Health Center with risk severity, blocker ownership, due dates, mitigation plans, activity logging, and notification hooks
 - Google OAuth sign-in route
-- Prisma schema for users, profiles, projects, members, tasks, comments, files, notifications, activity logs, channels, and messages
+- Prisma schema for users, profiles, projects, members, tasks, comments, files, notifications, activity logs, channels, messages, milestones, decisions, and project risks
 - Protected API route patterns for tasks, notifications, and S3 presigned upload URLs
 
 ## Project structure

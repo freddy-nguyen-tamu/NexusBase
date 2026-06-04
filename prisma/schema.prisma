@@ -53,6 +53,20 @@ enum DecisionStatus {
   SUPERSEDED
 }
 
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  OPEN
+  WATCHING
+  MITIGATED
+  CLOSED
+}
+
 enum FilePermission {
   OWNER
   EDITOR
@@ -110,6 +124,8 @@ model User {
   createdMilestones  Milestone[]     @relation("MilestoneCreator")
   ownedMilestones    Milestone[]     @relation("MilestoneOwner")
   createdDecisions   Decision[]      @relation("DecisionCreator")
+  ownedRisks         ProjectRisk[]   @relation("RiskOwner")
+  createdRisks       ProjectRisk[]   @relation("RiskCreator")
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
 }
@@ -172,6 +188,7 @@ model Project {
   tasks        Task[]
   milestones   Milestone[]
   decisions    Decision[]
+  risks        ProjectRisk[]
   comments     Comment[]
   files        FileObject[]
   channels     Channel[]
@@ -264,6 +281,36 @@ model Decision {
 
   @@index([projectId, status])
   @@index([creatorId])
+}
+
+model ProjectRisk {
+  id          String  @id @default(cuid())
+  projectId   String
+  ownerId     String?
+  createdById String
+
+  title       String
+  description String?
+  severity    RiskSeverity @default(MEDIUM)
+  status      RiskStatus   @default(OPEN)
+  impact      String?
+  mitigation  String?
+  dueDate     DateTime?
+  resolvedAt  DateTime?
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  owner     User?   @relation("RiskOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdBy User    @relation("RiskCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([ownerId])
+  @@index([createdById])
+  @@index([status])
+  @@index([severity])
+  @@index([dueDate])
 }
 
 model Comment {
