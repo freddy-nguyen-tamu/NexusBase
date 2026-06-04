@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { FloatingActionButton } from "@/components/ui/floating-action-button";
+import { CommandPalette } from "@/components/dashboard/command-palette";
 import Sidebar from "./Sidebar";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -39,6 +40,8 @@ export default function DashboardShell({ children }: { children: React.ReactNode
           )
         }
       />
+
+      <CommandPalette />
     </div>
   );
 }

@@ -27,6 +27,7 @@ It demonstrates authentication, project/task workflows, cloud file storage, role
 - Team member roles and workload summary
 - Activity log for audit-style events
 - Admin analytics snapshot
+- Universal workspace search and Ctrl/Cmd+K command palette across projects, tasks, files, milestones, decisions, and messages
 - Google OAuth sign-in route
 - Prisma schema for users, profiles, projects, members, tasks, comments, files, notifications, activity logs, channels, and messages
 - Protected API route patterns for tasks, notifications, and S3 presigned upload URLs

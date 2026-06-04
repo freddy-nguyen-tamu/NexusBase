@@ -1,82 +1,56 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const searchSchema = z.object({
-  q: z.string().trim().min(1, "Search query is required").max(100),
-  projectId: z.string().optional(),
-  type: z
-    .enum(["all", "projects", "tasks", "files", "comments", "messages"])
-    .default("all"),
+const searchQuerySchema = z.object({
+  q: z.string().trim().max(120).default(""),
+  limit: z.coerce.number().int().min(1).max(25).default(8),
 });
 
 type SearchResult = {
   id: string;
-  type: "project" | "task" | "file" | "comment" | "message";
+  type: "project" | "task" | "file" | "milestone" | "decision" | "message";
   title: string;
-  body: string | null;
-  projectId: string;
-  projectName: string;
+  subtitle: string;
+  badge: string;
   href: string;
-  updatedAt: Date;
-  meta: Record<string, string | number | null>;
+  projectId?: string;
+  projectName?: string;
+  updatedAt?: string;
+  createdAt?: string;
 };
+
+function textContains(query: string) {
+  return { contains: query, mode: "insensitive" as const };
+}
+
+function compactSubtitle(parts: Array<string | null | undefined>) {
+  return parts.filter(Boolean).join(" · ");
+}
+
+function truncate(value: string | null | undefined, max = 120) {
+  if (!value) return "";
+  if (value.length <= max) return value;
+  return `${value.slice(0, max - 1)}…`;
+}
 
 async function requireUser() {
   const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
-    return {
-      userId: null,
-      response: NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 },
-      ),
-    };
-  }
-
-  return {
-    userId: session.user.id,
-    response: NextResponse.json({ error: "Internal Server Error" }, { status: 500 }),
-  };
-}
-
-function shouldSearch(type: string, target: string) {
-  return type === "all" || type === target;
-}
-
-function normalizeQuery(value: string) {
-  return value.trim();
-}
-
-function truncate(value: string | null | undefined, maxLength = 180) {
-  if (!value) {
-    return null;
-  }
-
-  if (value.length <= maxLength) {
-    return value;
-  }
-
-  return `${value.slice(0, maxLength).trim()}...`;
+  if (!session?.user?.id) return null;
+  return session.user.id;
 }
 
 export async function GET(request: Request) {
-  const { userId, response } = await requireUser();
-
-  if (!userId) {
-    return response;
-  }
+  const userId = await requireUser();
+  if (!userId) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
-
-  const parsed = searchSchema.safeParse({
+  const parsed = searchQuerySchema.safeParse({
     q: searchParams.get("q") ?? "",
-    projectId: searchParams.get("projectId") || undefined,
-    type: searchParams.get("type") || "all",
+    limit: searchParams.get("limit") ?? "8",
   });
 
   if (!parsed.success) {
@@ -86,45 +60,21 @@ export async function GET(request: Request) {
     );
   }
 
-  const query = normalizeQuery(parsed.data.q);
-  const projectFilter = parsed.data.projectId
-    ? { id: parsed.data.projectId }
-    : {};
+  const query = parsed.data.q;
+  const limit = parsed.data.limit;
 
-  const projectAccessWhere = {
-    ...projectFilter,
-    members: {
-      some: {
-        userId,
-      },
-    },
-  };
+  if (query.length < 2) {
+    return NextResponse.json({ query, results: [], grouped: { projects: [], tasks: [], files: [], milestones: [], decisions: [], messages: [] } });
+  }
 
-  const results: SearchResult[] = [];
-
-  if (shouldSearch(parsed.data.type, "projects")) {
-    const projects = await prisma.project.findMany({
+  const [projects, tasks, files, milestones, decisions, messages] = await Promise.all([
+    prisma.project.findMany({
       where: {
-        ...projectAccessWhere,
+        members: { some: { userId } },
         OR: [
-          {
-            name: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-          {
-            slug: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-          {
-            description: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
+          { name: textContains(query) },
+          { slug: textContains(query) },
+          { description: textContains(query) },
         ],
       },
       select: {
@@ -133,288 +83,218 @@ export async function GET(request: Request) {
         slug: true,
         description: true,
         updatedAt: true,
-        _count: {
-          select: {
-            tasks: true,
-            files: true,
-            members: true,
-          },
-        },
+        _count: { select: { tasks: true, files: true, members: true } },
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 10,
-    });
+      orderBy: { updatedAt: "desc" },
+      take: limit,
+    }),
 
-    results.push(
-      ...projects.map((project) => ({
-        id: project.id,
-        type: "project" as const,
-        title: project.name,
-        body: truncate(project.description),
-        projectId: project.id,
-        projectName: project.name,
-        href: `/dashboard?projectId=${project.id}`,
-        updatedAt: project.updatedAt,
-        meta: {
-          slug: project.slug,
-          tasks: project._count.tasks,
-          files: project._count.files,
-          members: project._count.members,
-        },
-      })),
-    );
-  }
-
-  if (shouldSearch(parsed.data.type, "tasks")) {
-    const tasks = await prisma.task.findMany({
+    prisma.task.findMany({
       where: {
-        project: projectAccessWhere,
+        project: { members: { some: { userId } } },
         OR: [
-          {
-            title: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-          {
-            description: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
+          { title: textContains(query) },
+          { description: textContains(query) },
         ],
       },
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        assignee: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        dueDate: true,
+        updatedAt: true,
+        projectId: true,
+        project: { select: { name: true, slug: true } },
+        assignee: { select: { name: true, email: true } },
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 15,
-    });
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+      take: limit,
+    }),
 
-    results.push(
-      ...tasks.map((task) => ({
-        id: task.id,
-        type: "task" as const,
-        title: task.title,
-        body: truncate(task.description),
-        projectId: task.project.id,
-        projectName: task.project.name,
-        href: `/dashboard?taskId=${task.id}`,
-        updatedAt: task.updatedAt,
-        meta: {
-          status: task.status,
-          priority: task.priority,
-          assignee: task.assignee?.name ?? task.assignee?.email ?? "Unassigned",
-        },
-      })),
-    );
-  }
-
-  if (shouldSearch(parsed.data.type, "files")) {
-    const files = await prisma.fileObject.findMany({
+    prisma.fileObject.findMany({
       where: {
-        project: projectAccessWhere,
+        deletedAt: null,
+        project: { members: { some: { userId } } },
         OR: [
-          {
-            name: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-          {
-            mimeType: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-          {
-            key: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
+          { name: textContains(query) },
+          { mimeType: textContains(query) },
+          { key: textContains(query) },
         ],
       },
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        owner: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+      select: {
+        id: true,
+        name: true,
+        mimeType: true,
+        sizeBytes: true,
+        updatedAt: true,
+        projectId: true,
+        project: { select: { name: true, slug: true } },
+        owner: { select: { name: true, email: true } },
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 15,
-    });
+      orderBy: { updatedAt: "desc" },
+      take: limit,
+    }),
 
-    results.push(
-      ...files.map((file) => ({
-        id: file.id,
-        type: "file" as const,
-        title: file.name,
-        body: truncate(file.mimeType),
-        projectId: file.project.id,
-        projectName: file.project.name,
-        href: `/dashboard?fileId=${file.id}`,
-        updatedAt: file.updatedAt,
-        meta: {
-          size: Number(file.sizeBytes),
-          mimeType: file.mimeType,
-          uploader: file.owner?.name ?? file.owner?.email ?? "Unknown",
-        },
-      })),
-    );
-  }
-
-  if (shouldSearch(parsed.data.type, "comments")) {
-    const comments = await prisma.comment.findMany({
+    prisma.milestone.findMany({
       where: {
-        project: {
-          is: projectAccessWhere,
-        },
-        body: {
-          contains: query,
-          mode: "insensitive",
-        },
+        project: { members: { some: { userId } } },
+        OR: [
+          { title: textContains(query) },
+          { description: textContains(query) },
+        ],
       },
-      include: {
-        project: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        task: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        author: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        status: true,
+        dueDate: true,
+        updatedAt: true,
+        projectId: true,
+        project: { select: { name: true, slug: true } },
+        owner: { select: { name: true, email: true } },
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 15,
-    });
+      orderBy: [{ updatedAt: "desc" }, { sortOrder: "asc" }],
+      take: limit,
+    }),
 
-    results.push(
-      ...comments
-        .filter((comment) => comment.project)
-        .map((comment) => ({
-          id: comment.id,
-          type: "comment" as const,
-          title: comment.task
-            ? `Comment on ${comment.task.title}`
-            : `Comment in ${comment.project?.name ?? "project"}`,
-          body: truncate(comment.body),
-          projectId: comment.project?.id ?? "",
-          projectName: comment.project?.name ?? "Unknown project",
-          href: comment.task
-            ? `/dashboard?taskId=${comment.task.id}&commentId=${comment.id}`
-            : `/dashboard?projectId=${comment.project?.id ?? ""}&commentId=${comment.id}`,
-          updatedAt: comment.updatedAt,
-          meta: {
-            task: comment.task?.title ?? null,
-            author: comment.author?.name ?? comment.author?.email ?? "Unknown",
-          },
-        })),
-    );
-  }
-
-  if (shouldSearch(parsed.data.type, "messages")) {
-    const messages = await prisma.message.findMany({
+    prisma.decision.findMany({
       where: {
+        project: { members: { some: { userId } } },
+        OR: [
+          { title: textContains(query) },
+          { context: textContains(query) },
+          { decision: textContains(query) },
+          { impact: textContains(query) },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        context: true,
+        decision: true,
+        impact: true,
+        status: true,
+        updatedAt: true,
+        projectId: true,
+        project: { select: { name: true, slug: true } },
+        creator: { select: { name: true, email: true } },
+      },
+      orderBy: { updatedAt: "desc" },
+      take: limit,
+    }),
+
+    prisma.message.findMany({
+      where: {
+        body: textContains(query),
         channel: {
-          project: projectAccessWhere,
-        },
-        body: {
-          contains: query,
-          mode: "insensitive",
+          project: { members: { some: { userId } } },
         },
       },
-      include: {
+      select: {
+        id: true,
+        body: true,
+        createdAt: true,
         channel: {
           select: {
-            project: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        },
-        author: {
-          select: {
+            id: true,
+            slug: true,
             name: true,
-            email: true,
+            projectId: true,
+            project: { select: { name: true, slug: true } },
           },
         },
+        author: { select: { name: true, email: true } },
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 15,
-    });
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    }),
+  ]);
 
-    results.push(
-      ...messages.map((message) => ({
-        id: message.id,
-        type: "message" as const,
-        title: `Message from ${
-          message.author?.name ?? message.author?.email ?? "Unknown user"
-        }`,
-        body: truncate(message.body),
-        projectId: message.channel.project.id,
-        projectName: message.channel.project.name,
-        href: `/dashboard?projectId=${message.channel.project.id}&messageId=${message.id}`,
-        updatedAt: message.updatedAt,
-        meta: {
-          author: message.author?.name ?? message.author?.email ?? "Unknown",
-        },
-      })),
-    );
-  }
+  const grouped = {
+    projects: projects.map<SearchResult>((p) => ({
+      id: p.id,
+      type: "project" as const,
+      title: p.name,
+      subtitle: compactSubtitle([p.description, `${p._count.tasks} tasks`, `${p._count.files} files`, `${p._count.members} members`]),
+      badge: "Project",
+      href: `/dashboard?projectId=${p.id}`,
+      projectId: p.id,
+      projectName: p.name,
+      updatedAt: p.updatedAt.toISOString(),
+    })),
 
-  const sortedResults = results
-    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
-    .slice(0, 50)
-    .map((result) => ({
-      ...result,
-      updatedAt: result.updatedAt.toISOString(),
-    }));
+    tasks: tasks.map<SearchResult>((t) => ({
+      id: t.id,
+      type: "task" as const,
+      title: t.title,
+      subtitle: compactSubtitle([t.project.name, t.assignee?.name ?? t.assignee?.email, t.description ? truncate(t.description) : null]),
+      badge: `${t.status.replaceAll("_", " ")} · ${t.priority}`,
+      href: `/dashboard/tasks?projectId=${t.projectId}&taskId=${t.id}`,
+      projectId: t.projectId,
+      projectName: t.project.name,
+      updatedAt: t.updatedAt.toISOString(),
+    })),
 
-  return NextResponse.json({
-    query,
-    count: sortedResults.length,
-    results: sortedResults,
-  });
+    files: files.map<SearchResult>((f) => ({
+      id: f.id,
+      type: "file" as const,
+      title: f.name,
+      subtitle: compactSubtitle([f.project.name, f.mimeType, f.owner?.name ?? f.owner?.email]),
+      badge: "File",
+      href: `/dashboard/files?projectId=${f.projectId}&fileId=${f.id}`,
+      projectId: f.projectId,
+      projectName: f.project.name,
+      updatedAt: f.updatedAt.toISOString(),
+    })),
+
+    milestones: milestones.map<SearchResult>((m) => ({
+      id: m.id,
+      type: "milestone" as const,
+      title: m.title,
+      subtitle: compactSubtitle([m.project.name, m.owner?.name ?? m.owner?.email, m.description ? truncate(m.description) : null]),
+      badge: m.status,
+      href: `/dashboard/roadmap?projectId=${m.projectId}&milestoneId=${m.id}`,
+      projectId: m.projectId,
+      projectName: m.project.name,
+      updatedAt: m.updatedAt.toISOString(),
+    })),
+
+    decisions: decisions.map<SearchResult>((d) => ({
+      id: d.id,
+      type: "decision" as const,
+      title: d.title,
+      subtitle: compactSubtitle([d.project.name, d.creator?.name ?? d.creator?.email, truncate(d.decision || d.context)]),
+      badge: d.status,
+      href: `/dashboard/roadmap?projectId=${d.projectId}&decisionId=${d.id}`,
+      projectId: d.projectId,
+      projectName: d.project.name,
+      updatedAt: d.updatedAt.toISOString(),
+    })),
+
+    messages: messages.map<SearchResult>((msg) => ({
+      id: msg.id,
+      type: "message" as const,
+      title: truncate(msg.body, 80),
+      subtitle: compactSubtitle([msg.channel.project.name, `#${msg.channel.slug}`, msg.author?.name ?? msg.author?.email]),
+      badge: "Message",
+      href: `/dashboard/messages?projectId=${msg.channel.projectId}&channelId=${msg.channel.id}&messageId=${msg.id}`,
+      projectId: msg.channel.projectId,
+      projectName: msg.channel.project.name,
+      createdAt: msg.createdAt.toISOString(),
+    })),
+  };
+
+  const results = [
+    ...grouped.projects,
+    ...grouped.tasks,
+    ...grouped.files,
+    ...grouped.milestones,
+    ...grouped.decisions,
+    ...grouped.messages,
+  ];
+
+  return NextResponse.json({ query, results, grouped });
 }

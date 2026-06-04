@@ -6,6 +6,7 @@ import { Flag, LogOut } from "lucide-react";
 
 const navItems = [
   { label: "Overview",      href: "/dashboard" },
+  { label: "Search",        href: "/dashboard/search" },
   { label: "Projects",      href: "/dashboard/projects" },
   { label: "Tasks",         href: "/dashboard/tasks" },
   { label: "Roadmap",       href: "/dashboard/roadmap" },
