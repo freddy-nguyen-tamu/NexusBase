@@ -46,6 +46,7 @@ enum FilePermission {
 
 enum FileProvider {
   AWS_S3
+  LOCAL
 }
 
 enum NotificationType {

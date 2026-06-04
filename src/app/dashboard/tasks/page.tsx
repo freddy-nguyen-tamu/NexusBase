@@ -1,1 +1,17 @@
-export default function Page() { return <div className="p-8"><h1 className="font-heading text-2xl font-semibold text-framer-text capitalize">tasks</h1><p className="text-framer-muted mt-2">Coming soon.</p></div>; }
+import DashboardShell from "@/components/layout/DashboardShell"
+import { TaskBoard } from "@/components/dashboard/task-board"
+
+export default function TasksPage() {
+  return (
+    <DashboardShell>
+      <div className="sl-card min-h-[500px]">
+        <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
+          Task Board
+        </h2>
+        <div className="mt-4">
+          <TaskBoard />
+        </div>
+      </div>
+    </DashboardShell>
+  )
+}

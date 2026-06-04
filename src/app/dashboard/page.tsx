@@ -13,56 +13,60 @@ export default function DashboardPage() {
     <DashboardShell>
       <StatsCards />
 
-      <div className="mt-6 grid grid-cols-12 gap-6">
-        <div className="sl-card col-span-4">
-          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+      <section className="mt-6">
+        <div className="sl-card">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
             Projects
           </h2>
           <div className="mt-4">
             <ProjectManager />
           </div>
         </div>
+      </section>
 
-        <div className="sl-card col-span-8 min-h-[500px]">
-          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+      <section className="mt-6">
+        <div className="sl-card min-h-[500px]">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
             Task Board
           </h2>
           <div className="mt-4">
             <TaskBoard />
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mt-6 grid grid-cols-12 gap-6">
-        <div className="sl-card col-span-8">
-          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+      <section className="mt-6">
+        <div className="sl-card">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
             Workspace Files
           </h2>
           <div className="mt-4">
             <FileTable />
           </div>
         </div>
+      </section>
 
-        <div className="sl-card col-span-4">
-          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+      <section className="mt-6">
+        <div className="sl-card">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
             Activity
           </h2>
           <div className="mt-4">
             <ActivityFeed />
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mt-6">
+      <section className="mt-6">
         <div className="sl-card">
-          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text">
+          <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
             Team Chat
           </h2>
           <div className="mt-4">
             <TeamChat />
           </div>
         </div>
-      </div>
+      </section>
     </DashboardShell>
   )
 }

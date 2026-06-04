@@ -290,6 +290,7 @@ export function FileTable() {
     setError(null);
 
     try {
+      // Try S3 presigned upload first
       const presignResponse = await fetch("/api/files/presign", {
         method: "POST",
         headers: {
@@ -302,42 +303,65 @@ export function FileTable() {
         }),
       });
 
-      if (!presignResponse.ok) {
-        const data = (await presignResponse.json().catch(() => null)) as
-          | { error?: string }
+      if (presignResponse.ok) {
+        const presignData = (await presignResponse.json()) as {
+          bucket: string;
+          key: string;
+          method: "PUT";
+          uploadUrl: string;
+          expiresInSeconds: number;
+        };
+
+        setUploadProgress("Uploading file to S3...");
+        await uploadToSignedUrl(selectedFile, presignData.uploadUrl);
+
+        setUploadProgress("Saving file metadata...");
+        const data = await createFileRecord({
+          file: selectedFile,
+          key: presignData.key,
+          bucket: presignData.bucket,
+        });
+
+        setFiles((current) => [data.file, ...current]);
+        setSelectedFile(null);
+        setUploadProgress("");
+
+        const input = document.getElementById("workspace-file") as
+          | HTMLInputElement
           | null;
-
-        throw new Error(data?.error ?? "Could not create signed upload URL.");
+        if (input) {
+          input.value = "";
+        }
+        return;
       }
+    } catch {
+      // S3 upload failed — fall through to local upload
+    }
 
-      const presignData = (await presignResponse.json()) as {
-        bucket: string;
-        key: string;
-        method: "PUT";
-        uploadUrl: string;
-        expiresInSeconds: number;
-      };
+    // Fallback: upload directly via API (works without S3)
+    setUploadProgress("Uploading file directly...");
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("projectId", selectedProjectId);
 
-      setUploadProgress("Uploading file to S3...");
-      await uploadToSignedUrl(selectedFile, presignData.uploadUrl);
-
-      setUploadProgress("Saving file metadata...");
-      const data = await createFileRecord({
-        file: selectedFile,
-        key: presignData.key,
-        bucket: presignData.bucket,
+      const res = await fetch("/api/files/upload", {
+        method: "POST",
+        body: formData,
       });
 
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error ?? "Upload failed.");
+      }
+
+      const data = await res.json();
       setFiles((current) => [data.file, ...current]);
       setSelectedFile(null);
       setUploadProgress("");
 
-      const input = document.getElementById("workspace-file") as
-        | HTMLInputElement
-        | null;
-      if (input) {
-        input.value = "";
-      }
+      const input = document.getElementById("workspace-file") as HTMLInputElement | null;
+      if (input) input.value = "";
     } catch (uploadError) {
       setError(
         uploadError instanceof Error

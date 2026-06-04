@@ -1,1 +1,17 @@
-export default function Page() { return <div className="p-8"><h1 className="font-heading text-2xl font-semibold text-framer-text capitalize">projects</h1><p className="text-framer-muted mt-2">Coming soon.</p></div>; }
+import DashboardShell from "@/components/layout/DashboardShell"
+import { ProjectManager } from "@/components/dashboard/project-manager"
+
+export default function ProjectsPage() {
+  return (
+    <DashboardShell>
+      <div className="sl-card">
+        <h2 className="font-heading text-lg font-bold tracking-tight text-nb-text px-6 pt-6">
+          Projects
+        </h2>
+        <div className="mt-4">
+          <ProjectManager />
+        </div>
+      </div>
+    </DashboardShell>
+  )
+}
