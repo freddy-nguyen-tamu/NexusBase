@@ -18,8 +18,10 @@ import {
   X,
 } from "lucide-react";
 import {
+  useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
@@ -118,6 +120,8 @@ export function FileTable() {
   const [busyFileId, setBusyFileId] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [openMenuFileId, setOpenMenuFileId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const selectedProject = useMemo(() => {
     return projects.find((project) => project.id === selectedProjectId) ?? null;
@@ -201,6 +205,18 @@ export function FileTable() {
   useEffect(() => {
     void loadFiles(selectedProjectId);
   }, [selectedProjectId]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuFileId(null);
+      }
+    }
+    if (openMenuFileId) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenuFileId]);
 
   function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
@@ -760,13 +776,41 @@ export function FileTable() {
                             )}
                           </button>
 
-                          <button
-                            className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt"
-                            title="More file actions"
-                            type="button"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
+                          <div className="relative" ref={menuRef}>
+                            <button
+                              className="grid h-8 w-8 place-items-center rounded-lg text-nb-muted hover:bg-nb-surface-alt"
+                              onClick={() => setOpenMenuFileId(openMenuFileId === file.id ? null : file.id)}
+                              title="More file actions"
+                              type="button"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </button>
+                            {openMenuFileId === file.id && (
+                              <div className="absolute right-0 z-10 mt-1 w-44 rounded-lg border border-nb-border bg-white shadow-lg">
+                                <button
+                                  className="block w-full px-4 py-2 text-left text-sm text-nb-text hover:bg-nb-surface-alt"
+                                  onClick={() => { setOpenMenuFileId(null); void downloadFile(file.id); }}
+                                  type="button"
+                                >
+                                  Download
+                                </button>
+                                <button
+                                  className="block w-full px-4 py-2 text-left text-sm text-nb-text hover:bg-nb-surface-alt"
+                                  onClick={() => { setOpenMenuFileId(null); startEditing(file); }}
+                                  type="button"
+                                >
+                                  Rename
+                                </button>
+                                <button
+                                  className="block w-full px-4 py-2 text-left text-sm text-rose-600 hover:bg-rose-50"
+                                  onClick={() => { setOpenMenuFileId(null); void deleteFile(file.id); }}
+                                  type="button"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </>
                       )}
                     </div>

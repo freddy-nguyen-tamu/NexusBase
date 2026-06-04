@@ -97,6 +97,13 @@ const TESTIMONIALS = [
 
 const NAV_LINKS = ["Dashboard", "Files", "Team", "Pricing"];
 
+const NAV_LINK_ROUTES: Record<string, string> = {
+  dashboard: "/dashboard",
+  files:     "/dashboard/files",
+  team:      "/dashboard/members",
+  pricing:   "/pricing",
+};
+
 const FOOTER_FREEBIES = [
   "Open source on GitHub",
   "Free for solo use",
@@ -193,7 +200,7 @@ function NavBar() {
         {NAV_LINKS.map((link) => (
           <li key={link}>
             <a
-              href={`/${link.toLowerCase()}`}
+              href={NAV_LINK_ROUTES[link.toLowerCase()] ?? "#"}
               style={{
                 fontSize: "0.875rem",
                 fontWeight: 600,
@@ -1083,7 +1090,9 @@ function Footer() {
           {socialLinks.map(({ icon: Icon, label }) => (
             <a
               key={label}
-              href="#"
+              href={label === "GITHUB" ? "https://github.com" : "#"}
+              target="_blank"
+              rel="noreferrer"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1130,7 +1139,9 @@ function Footer() {
         {FOOTER_FREEBIES.map((link) => (
           <a
             key={link}
-            href="#"
+            href={link === "Open source on GitHub" ? "https://github.com" : "#"}
+            target={link === "Open source on GitHub" ? "_blank" : undefined}
+            rel={link === "Open source on GitHub" ? "noreferrer" : undefined}
             style={{
               display: "block",
               fontSize: "1rem",

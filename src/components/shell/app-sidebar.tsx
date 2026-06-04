@@ -12,18 +12,18 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Projects", icon: SquareKanban },
-  { label: "Files", icon: Files },
-  { label: "Messages", icon: MessageSquare },
-  { label: "Search", icon: Search },
-  { label: "Notifications", icon: Bell },
-  { label: "Members", icon: Users },
-  { label: "Permissions", icon: LockKeyhole },
-  { label: "Admin", icon: ShieldCheck },
-  { label: "Settings", icon: Settings },
-];
+const NAV_ROUTES: Record<string, string> = {
+  Dashboard:     "/dashboard",
+  Projects:      "/dashboard/projects",
+  Files:         "/dashboard/files",
+  Messages:      "/dashboard/messages",
+  Search:        "/dashboard/search",
+  Notifications: "/dashboard/notifications",
+  Members:       "/dashboard/members",
+  Permissions:   "/admin/permissions",
+  Settings:      "/dashboard/settings",
+  Admin:         "/admin",
+};
 
 export function AppSidebar() {
   return (
@@ -39,18 +39,27 @@ export function AppSidebar() {
       </div>
 
       <nav className="space-y-1">
-        {navItems.map((item) => (
+        {Object.entries(NAV_ROUTES).map(([label, href]) => (
           <Link
-            key={item.label}
+            key={label}
             className={
-              item.active
+              href === "/dashboard"
                 ? "flex items-center gap-3 rounded-lg bg-white px-3 py-2.5 text-sm font-medium text-[#10151f]"
                 : "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white"
             }
-            href={item.label === "Admin" ? "/admin" : "#"}
+            href={href}
           >
-            <item.icon className="h-4 w-4" aria-hidden="true" />
-            {item.label}
+            {label === "Dashboard" && <LayoutDashboard className="h-4 w-4" aria-hidden="true" />}
+            {label === "Projects" && <SquareKanban className="h-4 w-4" aria-hidden="true" />}
+            {label === "Files" && <Files className="h-4 w-4" aria-hidden="true" />}
+            {label === "Messages" && <MessageSquare className="h-4 w-4" aria-hidden="true" />}
+            {label === "Search" && <Search className="h-4 w-4" aria-hidden="true" />}
+            {label === "Notifications" && <Bell className="h-4 w-4" aria-hidden="true" />}
+            {label === "Members" && <Users className="h-4 w-4" aria-hidden="true" />}
+            {label === "Permissions" && <LockKeyhole className="h-4 w-4" aria-hidden="true" />}
+            {label === "Admin" && <ShieldCheck className="h-4 w-4" aria-hidden="true" />}
+            {label === "Settings" && <Settings className="h-4 w-4" aria-hidden="true" />}
+            {label}
           </Link>
         ))}
       </nav>
