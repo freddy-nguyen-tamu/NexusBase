@@ -1,17 +1,13 @@
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { unlink } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { createDownloadUrl, getBucketName, s3Client } from "@/lib/aws/s3";
+import { canEditProjectContent } from "@/lib/permissions";
 import { notifyProjectMembers } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
-
-const LOCAL_UPLOAD_DIR = "/tmp/uploads";
 
 const createFileSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
@@ -95,9 +91,7 @@ async function getFileForMember(fileId: string, userId: string) {
   });
 }
 
-function canManageFile(role: string) {
-  return role === "OWNER" || role === "ADMIN" || role === "EDITOR";
-}
+
 
 type FileWithRelations = NonNullable<
   Awaited<ReturnType<typeof getFileForMember>>
@@ -140,15 +134,6 @@ export async function GET(request: Request) {
         { error: "File not found or access denied" },
         { status: 404 },
       );
-    }
-
-    if (file.bucket === "local") {
-      const baseUrl = request.url.split("/api/")[0];
-      return NextResponse.json({
-        downloadUrl: `${baseUrl}/api/files/serve?fileId=${file.id}`,
-        expiresInSeconds: 300,
-        file: serializeFile(file),
-      });
     }
 
     const downloadUrl = await createDownloadUrl({
@@ -216,7 +201,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!canManageFile(membership.role)) {
+  if (!canEditProjectContent(membership.role)) {
     return NextResponse.json(
       { error: "Only owners, admins, and editors can upload files" },
       { status: 403 },
@@ -303,7 +288,7 @@ export async function PATCH(request: Request) {
 
   const membership = await assertProjectMembership(existingFile.projectId, userId);
 
-  if (!membership || !canManageFile(membership.role)) {
+  if (!membership || !canEditProjectContent(membership.role)) {
     return NextResponse.json(
       { error: "Only owners, admins, and editors can rename files" },
       { status: 403 },
@@ -368,26 +353,19 @@ export async function DELETE(request: Request) {
 
   const membership = await assertProjectMembership(existingFile.projectId, userId);
 
-  if (!membership || !canManageFile(membership.role)) {
+  if (!membership || !canEditProjectContent(membership.role)) {
     return NextResponse.json(
       { error: "Only owners, admins, and editors can delete files" },
       { status: 403 },
     );
   }
 
-  if (existingFile.bucket === "local") {
-    const filePath = join(LOCAL_UPLOAD_DIR, existingFile.key);
-    if (existsSync(filePath)) {
-      await unlink(filePath);
-    }
-  } else {
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: existingFile.bucket,
-        Key: existingFile.key,
-      }),
-    );
-  }
+  await s3Client.send(
+    new DeleteObjectCommand({
+      Bucket: existingFile.bucket,
+      Key: existingFile.key,
+    }),
+  );
 
   await prisma.fileObject.delete({
     where: {

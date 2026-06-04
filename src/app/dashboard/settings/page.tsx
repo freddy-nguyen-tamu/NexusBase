@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { ToggleSwitch } from "@/components/ui/toggle-switch";
 
 const notifications = [
   { id: "task_assigned", label: "Task assigned to me" },
@@ -178,24 +179,12 @@ export default function SettingsPage() {
           </div>
           <div className="mt-4 space-y-3">
             {notifications.map((n) => (
-              <div
+              <ToggleSwitch
                 key={n.id}
-                className="flex items-center justify-between rounded-lg px-4 py-3 hover:bg-nb-surface-alt"
-              >
-                <span className="text-sm text-nb-text">{n.label}</span>
-                <button
-                  onClick={() => toggleNotif(n.id)}
-                  className={`relative h-5 w-9 rounded-full transition-colors ${
-                    toggles[n.id] ? "bg-nb-green" : "bg-gray-300"
-                  }`}
-                >
-                  <span
-                    className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                      toggles[n.id] ? "translate-x-4" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
+                checked={toggles[n.id] ?? false}
+                onChange={() => toggleNotif(n.id)}
+                label={n.label}
+              />
             ))}
           </div>
         </section>
@@ -208,20 +197,13 @@ export default function SettingsPage() {
             </div>
             <h2 className="text-lg font-semibold text-nb-text">Appearance</h2>
           </div>
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-nb-surface-alt px-4 py-3">
-            <span className="text-sm text-nb-text">Theme</span>
-            <button
-              onClick={toggleTheme}
-              className={`relative h-5 w-9 rounded-full transition-colors ${
-                theme === "dark" ? "bg-nb-navy" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                  theme === "dark" ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </button>
+          <div className="mt-4">
+            <ToggleSwitch
+              checked={theme === "dark"}
+              onChange={toggleTheme}
+              label="Dark theme"
+              description="Switch the dashboard appearance between light and dark mode."
+            />
           </div>
         </section>
       </div>

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { canManageProject } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
 const createProjectSchema = z.object({
@@ -75,10 +76,6 @@ async function getProjectMembership(projectId: string, userId: string) {
   });
 }
 
-function canManageProject(role: string) {
-  return role === "OWNER" || role === "ADMIN";
-}
-
 export async function GET() {
   const { userId, response } = await requireUser();
 
@@ -146,6 +143,13 @@ export async function POST(request: Request) {
         create: {
           userId,
           role: "OWNER",
+        },
+      },
+      channels: {
+        create: {
+          createdById: userId,
+          name: `${payload.name} Updates`,
+          slug,
         },
       },
       activityLogs: {

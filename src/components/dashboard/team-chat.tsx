@@ -36,14 +36,27 @@ type ChatAuthor = {
   image: string | null;
 };
 
+type ChatChannel = {
+  id: string;
+  projectId: string;
+  name: string;
+  slug: string;
+};
+
 type ChatMessage = {
   id: string;
   body: string;
+  channelId: string;
   projectId: string;
   authorId: string;
   createdAt: string;
   updatedAt: string;
   author: ChatAuthor;
+  channel?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
 };
 
 type MemberRole = "OWNER" | "ADMIN" | "EDITOR" | "VIEWER";
@@ -77,6 +90,7 @@ export function TeamChat() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [selectedChannel, setSelectedChannel] = useState<ChatChannel | null>(null);
   const [currentUserId, setCurrentUserId] = useState("");
   const [currentUserRole, setCurrentUserRole] = useState<MemberRole | null>(
     null,
@@ -153,6 +167,7 @@ export function TeamChat() {
   } = {}) {
     if (!projectId) {
       setMessages([]);
+      setSelectedChannel(null);
       setCurrentUserId("");
       setCurrentUserRole(null);
       return;
@@ -187,12 +202,14 @@ export function TeamChat() {
 
       const data = (await response.json()) as {
         messages: ChatMessage[];
+        channel: ChatChannel;
         currentUserId: string;
         currentUserRole: MemberRole;
       };
 
       setCurrentUserId(data.currentUserId);
       setCurrentUserRole(data.currentUserRole);
+      setSelectedChannel(data.channel);
 
       if (onlyNew) {
         setMessages((current) => {
@@ -273,6 +290,7 @@ export function TeamChat() {
         },
         body: JSON.stringify({
           projectId: selectedProjectId,
+          channelId: selectedChannel?.id,
           body: trimmedBody,
         }),
       });
@@ -483,7 +501,7 @@ export function TeamChat() {
 
             {projects.map((project) => (
               <option key={project.id} value={project.id}>
-                #{project.slug} · {project.name}
+                {project.name}
               </option>
             ))}
           </select>
@@ -510,7 +528,11 @@ export function TeamChat() {
         <div className="mb-4 rounded-lg border border-nb-border bg-white px-3 py-2 text-sm text-nb-muted">
           Channel:{" "}
           <span className="font-semibold text-nb-text">
-            #{selectedProject.slug}
+            #{selectedChannel?.slug ?? "loading"}
+          </span>
+          {" · "}
+          <span className="font-semibold text-nb-text">
+            {selectedChannel?.name ?? selectedProject.name}
           </span>
           {" · "}
           Your role:{" "}

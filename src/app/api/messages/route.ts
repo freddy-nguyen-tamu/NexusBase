@@ -3,19 +3,23 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import {
+  getOrCreateProjectDefaultChannel,
+  getProjectChannelForMember,
+} from "@/lib/channels";
 import { notifyProjectMembers } from "@/lib/notifications";
+import { canModerateProject } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-
-const DEFAULT_CHAT_SLUG = "team-chat";
-const DEFAULT_CHAT_NAME = "Team Chat";
 
 const listMessagesSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
+  channelId: z.string().optional(),
   after: z.string().datetime().optional(),
 });
 
 const createMessageSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
+  channelId: z.string().optional(),
   body: z.string().min(1, "Message cannot be empty").max(2000),
 });
 
@@ -58,43 +62,13 @@ async function getProjectMembership(projectId: string, userId: string) {
       role: true,
       projectId: true,
       userId: true,
-    },
-  });
-}
-
-async function getDefaultChannel(projectId: string) {
-  return prisma.channel.findUnique({
-    where: {
-      projectId_slug: {
-        projectId,
-        slug: DEFAULT_CHAT_SLUG,
+      project: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
       },
-    },
-    select: {
-      id: true,
-      projectId: true,
-    },
-  });
-}
-
-async function getOrCreateDefaultChannel(projectId: string, userId: string) {
-  return prisma.channel.upsert({
-    where: {
-      projectId_slug: {
-        projectId,
-        slug: DEFAULT_CHAT_SLUG,
-      },
-    },
-    create: {
-      projectId,
-      createdById: userId,
-      name: DEFAULT_CHAT_NAME,
-      slug: DEFAULT_CHAT_SLUG,
-    },
-    update: {},
-    select: {
-      id: true,
-      projectId: true,
     },
   });
 }
@@ -119,20 +93,19 @@ async function getMessageForMember(messageId: string, userId: string) {
       authorId: true,
       channel: {
         select: {
+          id: true,
           projectId: true,
           project: {
             select: {
+              id: true,
               name: true,
+              slug: true,
             },
           },
         },
       },
     },
   });
-}
-
-function canModerate(role: string) {
-  return role === "OWNER" || role === "ADMIN";
 }
 
 type MessageWithAuthor = {
@@ -150,7 +123,10 @@ type MessageWithAuthor = {
     image: string | null;
   };
   channel: {
+    id: string;
     projectId: string;
+    name: string;
+    slug: string;
   };
 };
 
@@ -158,11 +134,31 @@ function serializeMessage(message: MessageWithAuthor) {
   return {
     id: message.id,
     body: message.body,
+    channelId: message.channelId,
     projectId: message.channel.projectId,
     authorId: message.authorId,
     createdAt: message.createdAt,
     updatedAt: message.updatedAt,
     author: message.author,
+    channel: {
+      id: message.channel.id,
+      name: message.channel.name,
+      slug: message.channel.slug,
+    },
+  };
+}
+
+function serializeChannel(channel: {
+  id: string;
+  projectId: string;
+  name: string;
+  slug: string;
+}) {
+  return {
+    id: channel.id,
+    projectId: channel.projectId,
+    name: channel.name,
+    slug: channel.slug,
   };
 }
 
@@ -177,6 +173,7 @@ export async function GET(request: Request) {
 
   const parsed = listMessagesSchema.safeParse({
     projectId: searchParams.get("projectId"),
+    channelId: searchParams.get("channelId") || undefined,
     after: searchParams.get("after") || undefined,
   });
 
@@ -196,14 +193,17 @@ export async function GET(request: Request) {
     );
   }
 
-  const channel = await getDefaultChannel(parsed.data.projectId);
+  const channel = await getProjectChannelForMember({
+    projectId: parsed.data.projectId,
+    channelId: parsed.data.channelId,
+    userId,
+  });
 
   if (!channel) {
-    return NextResponse.json({
-      messages: [],
-      currentUserId: userId,
-      currentUserRole: membership.role,
-    });
+    return NextResponse.json(
+      { error: "Channel not found or access denied" },
+      { status: 404 },
+    );
   }
 
   const messages = await prisma.message.findMany({
@@ -228,7 +228,10 @@ export async function GET(request: Request) {
       },
       channel: {
         select: {
+          id: true,
           projectId: true,
+          name: true,
+          slug: true,
         },
       },
     },
@@ -240,6 +243,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     messages: messages.map(serializeMessage),
+    channel: serializeChannel(channel),
     currentUserId: userId,
     currentUserRole: membership.role,
   });
@@ -270,7 +274,25 @@ export async function POST(request: Request) {
     );
   }
 
-  const channel = await getOrCreateDefaultChannel(parsed.data.projectId, userId);
+  const channel = parsed.data.channelId
+    ? await getProjectChannelForMember({
+        projectId: parsed.data.projectId,
+        channelId: parsed.data.channelId,
+        userId,
+      })
+    : await getOrCreateProjectDefaultChannel({
+        projectId: membership.project.id,
+        projectName: membership.project.name,
+        projectSlug: membership.project.slug,
+        userId,
+      });
+
+  if (!channel) {
+    return NextResponse.json(
+      { error: "Channel not found or access denied" },
+      { status: 404 },
+    );
+  }
 
   const message = await prisma.message.create({
     data: {
@@ -290,7 +312,10 @@ export async function POST(request: Request) {
       },
       channel: {
         select: {
+          id: true,
           projectId: true,
+          name: true,
+          slug: true,
         },
       },
     },
@@ -300,8 +325,8 @@ export async function POST(request: Request) {
     data: {
       projectId: parsed.data.projectId,
       actorId: userId,
-      action: "CREATED",
-      summary: "Sent a team chat message",
+      action: "COMMENTED",
+      summary: `Sent a message in #${channel.slug}`,
     },
   });
 
@@ -310,11 +335,17 @@ export async function POST(request: Request) {
     actorId: userId,
     type: "MESSAGE_CREATED",
     title: "New team message",
-    body: "A new message was posted in team chat.",
+    body: `A new message was posted in #${channel.slug}.`,
     href: `/dashboard?projectId=${parsed.data.projectId}`,
   });
 
-  return NextResponse.json({ message: serializeMessage(message) }, { status: 201 });
+  return NextResponse.json(
+    {
+      message: serializeMessage(message),
+      channel: serializeChannel(channel),
+    },
+    { status: 201 },
+  );
 }
 
 export async function PATCH(request: Request) {
@@ -370,7 +401,10 @@ export async function PATCH(request: Request) {
       },
       channel: {
         select: {
+          id: true,
           projectId: true,
+          name: true,
+          slug: true,
         },
       },
     },
@@ -381,7 +415,7 @@ export async function PATCH(request: Request) {
       projectId: existingMessage.channel.projectId,
       actorId: userId,
       action: "UPDATED",
-      summary: "Edited a team chat message",
+      summary: `Edited a message in #${message.channel.slug}`,
     },
   });
 
@@ -422,7 +456,7 @@ export async function DELETE(request: Request) {
   );
 
   const isAuthor = existingMessage.authorId === userId;
-  const isModerator = membership ? canModerate(membership.role) : false;
+  const isModerator = membership ? canModerateProject(membership.role) : false;
 
   if (!isAuthor && !isModerator) {
     return NextResponse.json(

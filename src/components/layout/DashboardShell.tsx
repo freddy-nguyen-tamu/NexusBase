@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { FloatingActionButton } from "@/components/ui/floating-action-button";
 import Sidebar from "./Sidebar";
 
 export default function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -23,19 +24,21 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         <div className="max-w-[1400px] mx-auto">{children}</div>
       </main>
 
-      <button
+      <FloatingActionButton
         onClick={toggleSidebar}
-        className="fixed top-4 z-50 grid h-7 w-7 place-items-center rounded-full border border-nb-border bg-nb-surface text-nb-navy shadow-sm hover:bg-nb-surface-alt transition-colors"
+        className="fixed top-4 z-50"
         style={{ left: sidebarCollapsed ? "0.75rem" : "18rem" }}
         title={sidebarCollapsed ? "Open sidebar" : "Close sidebar"}
-        type="button"
-      >
-        {sidebarCollapsed ? (
-          <PanelLeftOpen className="h-4 w-4" />
-        ) : (
-          <PanelLeftClose className="h-4 w-4" />
-        )}
-      </button>
+        aria-label={sidebarCollapsed ? "Open sidebar" : "Close sidebar"}
+        label={sidebarCollapsed ? "Open menu" : "Close menu"}
+        icon={
+          sidebarCollapsed ? (
+            <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+          )
+        }
+      />
     </div>
   );
 }
