@@ -2,7 +2,7 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 const navItems = [
   { label: "Overview",      href: "/dashboard" },
@@ -104,19 +104,6 @@ export default function Sidebar({
         </>
       )}
 
-      {/* Toggle button — sits at the right edge of the sidebar */}
-      <button
-        onClick={onToggle}
-        className="absolute top-4 -right-3 z-50 grid h-7 w-7 place-items-center rounded-full border border-nb-border bg-nb-surface text-nb-navy shadow-sm hover:bg-nb-surface-alt transition-colors"
-        title={collapsed ? "Open sidebar" : "Close sidebar"}
-        type="button"
-      >
-        {collapsed ? (
-          <PanelLeftOpen className="h-4 w-4" />
-        ) : (
-          <PanelLeftClose className="h-4 w-4" />
-        )}
-      </button>
     </aside>
   );
 }

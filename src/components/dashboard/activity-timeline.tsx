@@ -1,4 +1,7 @@
-import { Activity, Dot } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Activity, ChevronLeft, ChevronRight, Dot } from "lucide-react";
 
 type TimelineActivity = {
   actor: string;
@@ -8,11 +11,19 @@ type TimelineActivity = {
   time: string;
 };
 
+const PER_PAGE = 3;
+
 export function ActivityTimeline({
   activity = [],
 }: {
   activity?: TimelineActivity[];
 }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(activity.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages - 1);
+  const start = safePage * PER_PAGE;
+  const visible = activity.slice(start, start + PER_PAGE);
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
@@ -23,8 +34,8 @@ export function ActivityTimeline({
         </div>
       </div>
 
-      <div className="space-y-4">
-        {activity.map((event) => (
+      <div className="space-y-4 min-h-[200px]">
+        {visible.map((event) => (
           <div key={`${event.actor}-${event.subject}`} className="flex gap-3">
             <div className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-50 text-amber-700">
               <Dot className="h-6 w-6" aria-hidden="true" />
@@ -39,6 +50,41 @@ export function ActivityTimeline({
           </div>
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-1 border-t border-slate-100 pt-3">
+          <button
+            className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none"
+            disabled={safePage === 0}
+            onClick={() => setPage(safePage - 1)}
+            type="button"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              className={`grid h-8 w-8 place-items-center rounded-md text-sm font-medium transition-colors ${
+                i === safePage
+                  ? "bg-amber-100 text-amber-800"
+                  : "text-slate-500 hover:bg-slate-100"
+              }`}
+              onClick={() => setPage(i)}
+              type="button"
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            className="grid h-8 w-8 place-items-center rounded-md text-slate-500 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none"
+            disabled={safePage === totalPages - 1}
+            onClick={() => setPage(safePage + 1)}
+            type="button"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </section>
   );
 }

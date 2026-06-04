@@ -7,6 +7,8 @@ import { randomUUID } from "crypto";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const LOCAL_UPLOAD_DIR = "/tmp/uploads";
+
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -31,13 +33,13 @@ export async function POST(request: Request) {
 
   const ext = file.name.split(".").pop() || "";
   const safeName = `${randomUUID()}.${ext}`;
-  const uploadDir = join(process.cwd(), "public", "uploads", projectId);
+  const uploadDir = join(LOCAL_UPLOAD_DIR, projectId);
   const filePath = join(uploadDir, safeName);
 
   await mkdir(uploadDir, { recursive: true });
   await writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
-  const relativePath = `/uploads/${projectId}/${safeName}`;
+  const key = `${projectId}/${safeName}`;
 
   const record = await prisma.fileObject.create({
     data: {
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
       ownerId: session.user.id,
       provider: "LOCAL" as any,
       bucket: "local",
-      key: relativePath,
+      key,
       name: file.name,
       mimeType: file.type || "application/octet-stream",
       sizeBytes: BigInt(file.size),
