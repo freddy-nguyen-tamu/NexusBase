@@ -4,8 +4,23 @@ import { NextResponse } from "next/server";
 
 const PUBLIC_PATHS = ["/", "/login"];
 
+const PUBLIC_FILE_EXTENSIONS = [
+  ".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".ico",
+];
+
+function isPublicAsset(pathname: string) {
+  return (
+    pathname.startsWith("/assets/") ||
+    PUBLIC_FILE_EXTENSIONS.some((ext) => pathname.endsWith(ext))
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isPublicAsset(pathname)) {
+    return NextResponse.next();
+  }
 
   const token = await getToken({
     req: request,
@@ -50,6 +65,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|assets/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico)$).*)",
   ],
 };
