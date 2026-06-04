@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { on } from "@/lib/events";
+import { FlipNumber } from "@/components/ui/flip-number";
 
 type Stat = { label: string; value: string; trend?: string; detail: string };
 
@@ -10,58 +12,67 @@ export default function StatsCards() {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("there");
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [adminRes, sessionRes] = await Promise.allSettled([
-          fetch("/api/admin"),
-          fetch("/api/auth/session"),
-        ]);
+  async function load() {
+    try {
+      const [statsRes, sessionRes] = await Promise.allSettled([
+        fetch("/api/stats"),
+        fetch("/api/auth/session"),
+      ]);
 
-        let adminData: Record<string, number> = {};
-        if (adminRes.status === "fulfilled" && adminRes.value.ok) {
-          const json = await adminRes.value.json();
-          adminData = json.stats ?? {};
-        }
-
-        if (sessionRes.status === "fulfilled" && sessionRes.value.ok) {
-          const session = await sessionRes.value.json();
-          const name = session?.user?.name ?? session?.user?.email ?? "there";
-          setUserName(name.split(" ")[0]);
-        }
-
-        const cards: Stat[] = [
-          {
-            label: "Projects",
-            value: adminData.projects != null ? String(adminData.projects) : "—",
-            detail: "active workspaces",
-          },
-          {
-            label: "Tasks",
-            value: adminData.tasks != null ? String(adminData.tasks) : "—",
-            detail: "across all projects",
-          },
-          {
-            label: "Members",
-            value: adminData.users != null ? String(adminData.users) : "—",
-            detail: "workspace users",
-          },
-          {
-            label: "Files",
-            value: adminData.files != null ? String(adminData.files) : "—",
-            detail: "cloud-stored assets",
-          },
-        ];
-
-        setStats(cards);
-      } catch {
-        // silently fail
-      } finally {
-        setLoading(false);
+      let data: Record<string, number> = {};
+      if (statsRes.status === "fulfilled" && statsRes.value.ok) {
+        data = await statsRes.value.json();
       }
-    }
 
-    load();
+      if (sessionRes.status === "fulfilled" && sessionRes.value.ok) {
+        const session = await sessionRes.value.json();
+        const name = session?.user?.name ?? session?.user?.email ?? "there";
+        setUserName(name.split(" ")[0]);
+      }
+
+      const cards: Stat[] = [
+        {
+          label: "Projects",
+          value: data.projects != null ? String(data.projects) : "—",
+          detail: "active workspaces",
+        },
+        {
+          label: "Tasks",
+          value: data.tasks != null ? String(data.tasks) : "—",
+          detail: "across all projects",
+        },
+        {
+          label: "Members",
+          value: data.members != null ? String(data.members) : "—",
+          detail: "workspace users",
+        },
+        {
+          label: "Files",
+          value: data.files != null ? String(data.files) : "—",
+          detail: "cloud-stored assets",
+        },
+      ];
+
+      setStats(cards);
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void load();
+    const interval = setInterval(() => void load(), 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadRef = useRef(load);
+  loadRef.current = load;
+
+  useEffect(() => {
+    const unsub = on("activity", () => void loadRef.current());
+    return unsub;
   }, []);
 
   return (
@@ -87,7 +98,9 @@ export default function StatsCards() {
                 whileHover={{ y: -4 }}
                 className="rounded-2xl bg-white border border-nb-border p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default"
               >
-                <p className="text-2xl font-heading font-black text-nb-navy">{stat.value}</p>
+                <p className="text-2xl font-heading font-black text-nb-navy">
+                  <FlipNumber value={stat.value} />
+                </p>
                 <p className="text-xs text-nb-muted mt-0.5 font-mono">{stat.label}</p>
                 {stat.trend && (
                   <p
