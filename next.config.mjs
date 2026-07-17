@@ -1,3 +1,12 @@
+const frameAncestorHeaders = process.env.FRAME_ANCESTORS
+  ? [
+      {
+        key: "Content-Security-Policy",
+        value: `frame-ancestors ${process.env.FRAME_ANCESTORS};`,
+      },
+    ]
+  : [];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
@@ -17,10 +26,7 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: [
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
+          ...frameAncestorHeaders,
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
